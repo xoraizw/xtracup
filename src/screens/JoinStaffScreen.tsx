@@ -44,7 +44,7 @@ export default function JoinStaffScreen({
   };
 
   return (
-    <Screen includeTopInset={needsName}>
+    <Screen includeTopInset={needsName} scroll>
       <Title>Join as staff</Title>
       <Body style={styles.muted}>Enter the invite code your café manager gave you.</Body>
       <Card>

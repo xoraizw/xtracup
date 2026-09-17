@@ -9,6 +9,7 @@ export interface Cafe {
   city: string;
   description: string;
   cover_photo_url: string | null;
+  hours_text: string | null;
   created_at: string;
 }
 
@@ -61,6 +62,7 @@ export interface AppUser {
   id: string;
   phone: string;
   name: string | null;
+  age: number | null;
   role: UserRole;
   branch_id: string | null;
   legal_accepted_at: string | null;

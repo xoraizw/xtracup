@@ -1,11 +1,12 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import TabIcon, { TabIconName } from './TabIcon';
-import { colors, fonts } from '../theme/theme';
+import { colors, fonts, radii } from '../theme/theme';
 
 // Shared bottom-tab button for all three role shells (Customer/Staff/Owner)
-// — icon above label, tinted together by active state, on the warm rounded
-// UI font rather than the old mono/uppercase treatment.
+// — icon above label, tinted together by active state, with a soft pill
+// highlight behind the active tab so it reads clearly against the light
+// floating tab bar.
 export default function TabBarButton({
   icon,
   label,
@@ -20,8 +21,10 @@ export default function TabBarButton({
   const tint = active ? colors.accent : colors.textSecondary;
   return (
     <Pressable style={styles.tabButton} onPress={onPress}>
-      <TabIcon name={icon} color={tint} size={20} />
-      <Text style={[styles.label, active && styles.labelActive]}>{label}</Text>
+      <View style={[styles.pill, active && styles.pillActive]}>
+        <TabIcon name={icon} color={tint} size={20} />
+        <Text style={[styles.label, active && styles.labelActive]}>{label}</Text>
+      </View>
     </Pressable>
   );
 }
@@ -31,12 +34,21 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 3,
-    paddingVertical: 6,
+  },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: radii.pill,
+  },
+  pillActive: {
+    backgroundColor: colors.accentSoft,
   },
   label: {
     fontFamily: fonts.bodyMedium,
-    fontSize: 11,
+    fontSize: 12,
     color: colors.textSecondary,
   },
   labelActive: {

@@ -1,18 +1,33 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, View, Text } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useUser } from '@clerk/expo';
 import { useAuth } from '../../hooks/useAuth';
-import { BackLink, Body, Button, Card, Label, Screen, Title } from '../../components/ui';
-import { colors, fonts, spacing } from '../../theme/theme';
+import { Body, Card, EmptyState, IconButton, Label, Screen } from '../../components/ui';
+import Logo from '../../components/Logo';
+import { colors, fonts, radii, shadows, spacing } from '../../theme/theme';
 import PassTierModal from './PassTierModal';
+import TierCard from './TierCard';
 import type { Branch, Cafe, MenuPhoto, PassTier } from '../../types/database';
 
-export default function CafeDetailScreen({ cafe, onBack }: { cafe: Cafe; onBack: () => void }) {
+export default function CafeDetailScreen({
+  cafe,
+  initialTier,
+  onBack,
+  onRequireAuth,
+}: {
+  cafe: Cafe;
+  initialTier?: PassTier | null;
+  onBack: () => void;
+  onRequireAuth?: (cafe: Cafe, tier: PassTier) => void;
+}) {
+  const { user } = useUser();
   const { supabase } = useAuth();
   const [branches, setBranches] = useState<Branch[]>([]);
   const [tiers, setTiers] = useState<PassTier[]>([]);
   const [menuPhotos, setMenuPhotos] = useState<MenuPhoto[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  const [purchaseTier, setPurchaseTier] = useState<PassTier | null>(initialTier ?? null);
 
   const load = useCallback(async () => {
     const [{ data: branchData }, { data: tierData }, { data: menuData }] = await Promise.all([
@@ -30,75 +45,162 @@ export default function CafeDetailScreen({ cafe, onBack }: { cafe: Cafe; onBack:
     load();
   }, [load]);
 
+  useEffect(() => {
+    if (initialTier) setPurchaseTier(initialTier);
+  }, [initialTier]);
+
+  const pickTier = (tier: PassTier) => {
+    if (!user) {
+      onRequireAuth?.(cafe, tier);
+      return;
+    }
+    setPurchaseTier(tier);
+  };
+
+  const primaryBranch = branches[0] ?? null;
+
   return (
     <Screen>
-      <BackLink onPress={onBack} />
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {cafe.cover_photo_url ? (
-          <Image source={{ uri: cafe.cover_photo_url }} style={styles.cover} />
-        ) : null}
-        <Title>{cafe.name}</Title>
-        <Body style={styles.muted}>{cafe.city}</Body>
-        {cafe.description ? <Body style={styles.description}>{cafe.description}</Body> : null}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <IconButton onPress={onBack}>
+          <Body style={styles.backArrow}>←</Body>
+        </IconButton>
 
-        <View style={styles.spacer} />
-        <Button label={`View Passes (${tiers.length})`} onPress={() => setShowModal(true)} disabled={tiers.length === 0} />
+        <View style={styles.heroWrap}>
+          {cafe.cover_photo_url ? (
+            <Image source={{ uri: cafe.cover_photo_url }} style={styles.hero} resizeMode="cover" />
+          ) : (
+            <LinearGradient
+              colors={[colors.accentSoft, colors.surfaceRaised]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroPlaceholder}
+            >
+              <View style={styles.watermark}>
+                <Logo size={36} />
+              </View>
+            </LinearGradient>
+          )}
+          <LinearGradient
+            colors={['transparent', 'rgba(43,30,18,0.05)', 'rgba(20,13,7,0.85)']}
+            locations={[0, 0.45, 1]}
+            style={styles.heroScrim}
+          />
+          <View style={styles.heroText}>
+            <Text style={styles.heroName}>{cafe.name}</Text>
+            <Text style={styles.heroCity}>{cafe.city}</Text>
+          </View>
+        </View>
 
-        {loading ? (
-          <Body style={styles.muted}>Loading…</Body>
-        ) : (
-          <>
-            {menuPhotos.length > 0 ? (
-              <>
-                <View style={styles.sectionGap} />
-                <Label>Menu</Label>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.menuScroll}>
-                  {menuPhotos.map((photo) => (
-                    <Image key={photo.id} source={{ uri: photo.photo_url }} style={styles.menuPhoto} />
-                  ))}
-                </ScrollView>
-              </>
-            ) : null}
+        <View style={styles.body}>
+          {loading ? (
+            <Body style={styles.muted}>Loading…</Body>
+          ) : (
+            <>
+              <Card style={styles.infoCard}>
+                <View style={styles.infoRow}>
+                  <Label>City</Label>
+                  <Body>{cafe.city}</Body>
+                </View>
+                <View style={styles.infoDivider} />
+                <View style={styles.infoRow}>
+                  <Label>Address</Label>
+                  <Body>{primaryBranch?.address || 'Not listed yet'}</Body>
+                </View>
+                <View style={styles.infoDivider} />
+                <View style={styles.infoRow}>
+                  <Label>Hours</Label>
+                  <Body>{cafe.hours_text || 'Not listed yet'}</Body>
+                </View>
+              </Card>
 
-            <View style={styles.sectionGap} />
-            <Label>Branches ({branches.length})</Label>
-            {branches.length === 0 ? (
-              <Body style={styles.muted}>No branches listed yet.</Body>
-            ) : (
-              branches.map((branch) => (
-                <Card key={branch.id} style={styles.branchCard}>
-                  {branch.photo_url ? (
-                    <Image source={{ uri: branch.photo_url }} style={styles.branchPhoto} />
-                  ) : null}
-                  <Body style={styles.branchName}>{branch.name}</Body>
-                  {branch.address ? <Body style={styles.muted}>{branch.address}</Body> : null}
-                </Card>
-              ))
-            )}
-          </>
-        )}
+              {cafe.description ? <Body style={styles.description}>{cafe.description}</Body> : null}
+
+              {menuPhotos.length > 0 ? (
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Menu</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.menuScroll}>
+                    {menuPhotos.map((photo) => (
+                      <Image key={photo.id} source={{ uri: photo.photo_url }} style={styles.menuPhoto} />
+                    ))}
+                  </ScrollView>
+                </View>
+              ) : null}
+
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Passes</Text>
+                {tiers.length === 0 ? (
+                  <EmptyState title="No passes yet" subtitle="This café hasn't published any prepaid passes yet." />
+                ) : (
+                  tiers.map((tier) => <TierCard key={tier.id} tier={tier} onPress={() => pickTier(tier)} />)
+                )}
+              </View>
+
+              <View style={styles.section}>
+                <Label>Branches ({branches.length})</Label>
+                {branches.length === 0 ? (
+                  <Body style={styles.muted}>No branches listed yet.</Body>
+                ) : (
+                  branches.map((branch) => (
+                    <Card key={branch.id} style={styles.branchCard}>
+                      {branch.photo_url ? (
+                        <Image source={{ uri: branch.photo_url }} style={styles.branchPhoto} />
+                      ) : null}
+                      <Body style={styles.branchName}>{branch.name}</Body>
+                      {branch.address ? <Body style={styles.muted}>{branch.address}</Body> : null}
+                    </Card>
+                  ))
+                )}
+              </View>
+            </>
+          )}
+        </View>
       </ScrollView>
 
       <PassTierModal
-        visible={showModal}
+        visible={Boolean(purchaseTier)}
         cafe={cafe}
         tiers={tiers}
-        onClose={() => setShowModal(false)}
-        onPurchased={() => setShowModal(false)}
+        initialTier={purchaseTier}
+        onClose={() => setPurchaseTier(null)}
+        onPurchased={() => setPurchaseTier(null)}
+        onRequireAuth={onRequireAuth}
       />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  cover: { width: '100%', height: 180, borderRadius: 16, marginBottom: spacing.md, backgroundColor: colors.surfaceRaised },
+  scrollContent: { paddingBottom: spacing.lg },
+  backArrow: { color: colors.textPrimary, fontSize: 18, lineHeight: 18 },
+  heroWrap: {
+    marginTop: spacing.md,
+    position: 'relative',
+    height: 220,
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+    borderRadius: radii.xl,
+    backgroundColor: colors.surface,
+    ...shadows.raised,
+  },
+  hero: { ...StyleSheet.absoluteFill, backgroundColor: colors.surfaceRaised },
+  heroPlaceholder: { ...StyleSheet.absoluteFill },
+  watermark: { position: 'absolute', bottom: spacing.md, right: spacing.md, opacity: 0.35 },
+  heroScrim: { ...StyleSheet.absoluteFill },
+  heroText: { padding: spacing.lg },
+  heroName: { fontFamily: fonts.display, fontSize: 26, color: colors.onAccent, marginBottom: 2 },
+  heroCity: { fontFamily: fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.8)' },
+  body: { paddingTop: spacing.lg },
   muted: { color: colors.textSecondary },
-  description: { color: colors.textPrimary, marginTop: spacing.sm },
-  spacer: { height: spacing.md },
-  sectionGap: { height: spacing.lg },
-  menuScroll: { marginTop: spacing.sm },
-  menuPhoto: { width: 140, height: 140, borderRadius: 12, marginRight: spacing.sm, backgroundColor: colors.surfaceRaised },
+  infoCard: { gap: spacing.md },
+  infoRow: { gap: 2 },
+  infoDivider: { height: 1, backgroundColor: colors.hairline },
+  description: { color: colors.textPrimary, fontSize: 16, lineHeight: 23, marginTop: spacing.lg },
+  section: { marginTop: spacing.xl },
+  sectionTitle: { fontFamily: fonts.display, fontSize: 22, color: colors.textPrimary, marginBottom: spacing.md },
+  menuScroll: { marginTop: spacing.xs },
+  menuPhoto: { width: 160, height: 160, borderRadius: radii.md, marginRight: spacing.sm, backgroundColor: colors.surfaceRaised },
   branchCard: { marginTop: spacing.sm },
-  branchPhoto: { width: '100%', height: 100, borderRadius: 10, marginBottom: spacing.sm, backgroundColor: colors.surfaceRaised },
+  branchPhoto: { width: '100%', height: 100, borderRadius: radii.sm, marginBottom: spacing.sm, backgroundColor: colors.surfaceRaised },
   branchName: { fontFamily: fonts.displayMedium, fontSize: 15, color: colors.textPrimary },
 });

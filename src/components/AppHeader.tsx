@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { Pressable, StyleSheet, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Logo from './Logo';
+import { Avatar } from './ui';
 import { useAuth } from '../hooks/useAuth';
-import { colors, fonts, spacing } from '../theme/theme';
+import { colors, fonts, shadows, spacing } from '../theme/theme';
 
 const ROLE_SUBTITLE: Record<string, string> = {
   customer: '',
@@ -19,7 +20,7 @@ function firstName(fullName: string | null): string {
 // Sits at the top of each role's tab shell (above the tab content, outside
 // each individual screen's own <Screen> wrapper) so every tab within a
 // shell shares one consistent header instead of repeating it per screen.
-export default function AppHeader() {
+export default function AppHeader({ onProfilePress }: { onProfilePress?: () => void }) {
   const { profile } = useAuth();
   const subtitle = profile ? ROLE_SUBTITLE[profile.role] : '';
 
@@ -31,6 +32,11 @@ export default function AppHeader() {
           <Text style={styles.greeting}>Hi, {firstName(profile?.name ?? null)}</Text>
           {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
         </View>
+        {onProfilePress ? (
+          <Pressable onPress={onProfilePress} hitSlop={8}>
+            <Avatar name={profile?.name} size={36} />
+          </Pressable>
+        ) : null}
       </View>
     </SafeAreaView>
   );
@@ -38,9 +44,10 @@ export default function AppHeader() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.hairline,
+    backgroundColor: colors.surface,
+    ...shadows.card,
+    shadowOpacity: 0.05,
+    zIndex: 1,
   },
   row: {
     flexDirection: 'row',
@@ -51,6 +58,7 @@ const styles = StyleSheet.create({
   },
   textCol: {
     flexShrink: 1,
+    flexGrow: 1,
   },
   greeting: {
     fontFamily: fonts.displayMedium,

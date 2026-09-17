@@ -18,13 +18,14 @@ import {
 } from '@expo-google-fonts/plus-jakarta-sans';
 import { AuthProvider, useAuth } from './src/hooks/useAuth';
 import IntroScreen from './src/screens/IntroScreen';
-import AuthScreen from './src/screens/AuthScreen';
 import CompleteProfileScreen from './src/screens/CompleteProfileScreen';
 import AcceptLegalScreen from './src/screens/AcceptLegalScreen';
 import CustomerTabs from './src/navigation/CustomerTabs';
+import GuestTabs from './src/navigation/GuestTabs';
 import StaffTabs from './src/navigation/StaffTabs';
 import OwnerTabs from './src/navigation/OwnerTabs';
 import { colors } from './src/theme/theme';
+import { STAFF_OWNER_POV_ENABLED } from './src/config/features';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -45,7 +46,7 @@ function RootNavigator() {
   const { isSignedIn, isLoaded } = useClerkAuth();
 
   if (!isLoaded) return <LoadingScreen />;
-  if (!isSignedIn) return <AuthScreen />;
+  if (!isSignedIn) return <GuestTabs />;
 
   return <SignedInNavigator />;
 }
@@ -56,6 +57,10 @@ function SignedInNavigator() {
   if (loading) return <LoadingScreen />;
   if (!profile) return <CompleteProfileScreen />;
   if (!profile.legal_accepted_at) return <AcceptLegalScreen />;
+
+  // Staff/Owner POV is temporarily hidden while the app is redesigned as a
+  // customer-only experience — see src/config/features.ts.
+  if (!STAFF_OWNER_POV_ENABLED) return <CustomerTabs />;
 
   // Owner is the platform operator (no cafe_id) — never buys/holds a pass,
   // so unlike before there's no customer-view toggle for this role.
@@ -94,7 +99,7 @@ export default function App() {
         ) : (
           <IntroScreen onDone={() => setIntroDone(true)} />
         )}
-        <StatusBar style="light" />
+        <StatusBar style="dark" />
       </View>
     </SafeAreaProvider>
   );

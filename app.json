@@ -5,13 +5,13 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#1b140c",
+        "backgroundColor": "#FBF6EF",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -28,7 +28,7 @@
         "expo-splash-screen",
         {
           "image": "./assets/splash-icon.png",
-          "backgroundColor": "#1b140c",
+          "backgroundColor": "#FBF6EF",
           "imageWidth": 200
         }
       ],
@@ -43,7 +43,8 @@
         {
           "photosPermission": "XtraCup staff select photos of their café, branches, and menu to show customers."
         }
-      ]
+      ],
+      "expo-status-bar"
     ]
   }
 }

@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useAuth } from '../../hooks/useAuth';
 import { invokeFunction } from '../../lib/supabase';
-import { BackLink, Body, Card, Label, Screen, StatTile, Title } from '../../components/ui';
+import { BackLink, Body, Card, Label, ProgressBar, Screen, StatTile, Title } from '../../components/ui';
 import { colors, spacing } from '../../theme/theme';
 import type { Pass } from '../../types/database';
 
@@ -202,6 +202,9 @@ export default function PassDetailScreen({
         <StatTile value={String(pass.cups_remaining)} caption="Cups left" />
         <StatTile value={String(pass.cups_total)} caption="Total cups" />
       </View>
+      <View style={styles.progressRow}>
+        <ProgressBar progress={pass.cups_total ? pass.cups_remaining / pass.cups_total : 0} />
+      </View>
 
       {isWaiting ? (
         <Card style={styles.waitCard}>
@@ -232,6 +235,7 @@ const styles = StyleSheet.create({
   muted: { color: colors.textSecondary, marginBottom: spacing.md },
   error: { color: colors.negative, marginBottom: spacing.md },
   statRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
+  progressRow: { marginBottom: spacing.lg },
   qrCard: { alignItems: 'center' },
   qrWrap: { paddingVertical: spacing.lg },
   waitCard: { alignItems: 'center', paddingVertical: spacing.lg },

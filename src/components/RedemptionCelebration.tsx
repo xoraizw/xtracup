@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
-import { colors, fonts, radii, spacing } from '../theme/theme';
+import { colors, fonts, radii, shadows, spacing } from '../theme/theme';
 import type { Pass } from '../types/database';
 
 // Mounted once at the customer tab shell so it can pop up over whatever
@@ -101,18 +101,14 @@ const styles = StyleSheet.create({
     zIndex: 999,
   },
   card: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.positive,
     borderRadius: radii.lg,
     paddingVertical: spacing.xl,
     paddingHorizontal: spacing.xl * 1.4,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.35,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 12,
+    ...shadows.raised,
   },
   emoji: { fontSize: 40, marginBottom: spacing.sm },
   title: { fontFamily: fonts.displayMedium, fontSize: 20, color: colors.textPrimary, marginBottom: spacing.xs },
