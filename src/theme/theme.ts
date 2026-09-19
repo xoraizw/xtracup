@@ -1,18 +1,25 @@
 export const colors = {
-  background: '#FBF6EF',
-  surface: '#FFFFFF',
-  surfaceRaised: '#F5EEE3',
-  textPrimary: '#2B1E12',
-  textSecondary: '#8A7A66',
-  accent: '#C9863F',
-  accentSoft: '#F3E3CC',
-  onAccent: '#FFFFFF',
-  positive: '#4C9A6A',
-  positiveSoft: '#E1F1E7',
-  negative: '#D9584B',
-  negativeSoft: '#FBE7E4',
-  hairline: 'rgba(43, 30, 18, 0.10)',
-  hairlineStrong: 'rgba(43, 30, 18, 0.18)',
+  background: '#1b140c',
+  surface: '#251b10',
+  surfaceRaised: '#2d2113',
+  textPrimary: '#f0e6d5',
+  textSecondary: '#c2ad8c',
+  accent: '#c9a06a',
+  accentSoft: 'rgba(201, 160, 106, 0.16)',
+  onAccent: '#1b140c',
+  positive: '#8ec78a',
+  positiveSoft: 'rgba(142, 199, 138, 0.16)',
+  negative: '#d98865',
+  negativeSoft: 'rgba(217, 136, 101, 0.16)',
+  hairline: 'rgba(240, 230, 213, 0.14)',
+  hairlineStrong: 'rgba(240, 230, 213, 0.22)',
+  // Text sitting directly on a photo (under a dark scrim gradient) or any
+  // other photographic surface — always near-white regardless of theme,
+  // since the scrim itself (not the page background) sets the contrast
+  // ground. Distinct from `onAccent` (button-label color, which flips with
+  // the theme) even though the two happened to share a value under the
+  // light theme.
+  onPhoto: '#ffffff',
 } as const;
 
 // Sora (display) + Plus Jakarta Sans (UI/body) — a warm, rounded modern
@@ -57,15 +64,15 @@ export const monoLabel = {
 // buttons) that should read as sitting above everything else.
 export const shadows = {
   card: {
-    shadowColor: '#3A2A16',
-    shadowOpacity: 0.08,
+    shadowColor: '#000000',
+    shadowOpacity: 0.3,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 6 },
     elevation: 3,
   },
   raised: {
-    shadowColor: '#3A2A16',
-    shadowOpacity: 0.14,
+    shadowColor: '#000000',
+    shadowOpacity: 0.4,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 10 },
     elevation: 8,

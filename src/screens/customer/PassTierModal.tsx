@@ -87,49 +87,47 @@ export default function PassTierModal({
 
   return (
     <Sheet visible={visible} onRequestClose={close}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Title>{cafe.name}</Title>
-        <Body style={styles.muted}>{cafe.city}</Body>
+      <Title>{cafe.name}</Title>
+      <Body style={styles.muted}>{cafe.city}</Body>
 
-        {!selectedTier ? (
-          tiers.length === 0 ? (
+      {!selectedTier ? (
+        <ScrollView showsVerticalScrollIndicator={false} style={styles.tierScroll}>
+          {tiers.length === 0 ? (
             <Body style={styles.muted}>No passes available right now.</Body>
           ) : (
             tiers.map((tier) => <TierCard key={tier.id} tier={tier} onPress={() => pickTier(tier)} />)
-          )
-        ) : (
-          <Card style={styles.tierCard}>
-            <Label>Pay via</Label>
-            <Body style={styles.payAccount}>{selectedTier.payment_account_label || 'Ask café staff'}</Body>
-            <Body style={styles.muted}>
-              Send PKR {selectedTier.price_pkr.toLocaleString()} for the "{selectedTier.name}" pass, then enter
-              the transaction reference below. Café staff will confirm your payment and activate your pass.
-            </Body>
-            <View style={styles.spacer} />
-            <Label>Transaction reference</Label>
-            <Input
-              value={paymentRef}
-              onChangeText={setPaymentRef}
-              placeholder="e.g. JC-4471829"
-              autoCapitalize="characters"
-            />
-            <View style={styles.spacer} />
-            <Button label="I've paid — submit" onPress={submitPayment} loading={loading} disabled={!paymentRef} />
-            <View style={styles.spacer} />
-            <Button label="Back to passes" variant="secondary" onPress={() => setSelectedTier(null)} disabled={loading} />
-            {error ? <Body style={styles.error}>{error}</Body> : null}
-          </Card>
-        )}
-
-        <View style={styles.spacer} />
-        <Button label="Close" variant="secondary" onPress={close} disabled={loading} />
-      </ScrollView>
+          )}
+        </ScrollView>
+      ) : (
+        <Card style={styles.tierCard}>
+          <Label>Pay via</Label>
+          <Body style={styles.payAccount}>{selectedTier.payment_account_label || 'Ask café staff'}</Body>
+          <Body style={styles.muted}>
+            Send PKR {selectedTier.price_pkr.toLocaleString()} for the "{selectedTier.name}" pass, then enter
+            the transaction reference below. Café staff will confirm your payment and activate your pass.
+          </Body>
+          <View style={styles.spacer} />
+          <Label>Transaction reference</Label>
+          <Input
+            value={paymentRef}
+            onChangeText={setPaymentRef}
+            placeholder="e.g. JC-4471829"
+            autoCapitalize="characters"
+          />
+          <View style={styles.spacer} />
+          <Button label="I've paid — submit" onPress={submitPayment} loading={loading} disabled={!paymentRef} />
+          <View style={styles.spacer} />
+          <Button label="Back to passes" variant="secondary" onPress={() => setSelectedTier(null)} disabled={loading} />
+          {error ? <Body style={styles.error}>{error}</Body> : null}
+        </Card>
+      )}
     </Sheet>
   );
 }
 
 const styles = StyleSheet.create({
   muted: { color: colors.textSecondary, marginBottom: spacing.md },
+  tierScroll: { maxHeight: 420 },
   tierCard: { marginBottom: spacing.md },
   payAccount: { fontSize: 18, color: colors.textPrimary, marginBottom: spacing.sm, fontFamily: fonts.displayMedium },
   spacer: { height: spacing.md },

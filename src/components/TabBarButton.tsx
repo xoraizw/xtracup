@@ -42,6 +42,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: radii.pill,
+    // Without this, Android can paint the background fill before the
+    // corner-radius clip applies on a re-layout (e.g. switching tabs changes
+    // this view's width) — the highlight then flashes as a square before
+    // settling into the pill shape.
+    overflow: 'hidden',
   },
   pillActive: {
     backgroundColor: colors.accentSoft,

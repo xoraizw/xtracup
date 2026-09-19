@@ -18,19 +18,20 @@ import type { Cafe, PassTier } from '../types/database';
 export default function GuestTabs() {
   const { setPendingPurchase } = useAuth();
   const [openCafe, setOpenCafe] = useState<Cafe | null>(null);
-  const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState<'signUp' | 'signIn' | null>(null);
 
   const requireAuth = (cafe: Cafe, tier: PassTier) => {
     setPendingPurchase({ cafe, tier });
-    setShowAuth(true);
+    setAuthMode('signUp');
   };
 
-  if (showAuth) {
+  if (authMode) {
     return (
       <AuthScreen
+        initialMode={authMode}
         onCancel={() => {
           setPendingPurchase(null);
-          setShowAuth(false);
+          setAuthMode(null);
         }}
       />
     );
@@ -44,7 +45,10 @@ export default function GuestTabs() {
             <Logo size={28} />
             <Body style={styles.wordmark}>XtraCup</Body>
           </View>
-          <Button label="Sign up" size="compact" onPress={() => setShowAuth(true)} />
+          <View style={styles.authButtons}>
+            <Button label="Log in" size="compact" variant="secondary" onPress={() => setAuthMode('signIn')} />
+            <Button label="Sign up" size="compact" onPress={() => setAuthMode('signUp')} />
+          </View>
         </View>
       </SafeAreaView>
       <View style={styles.content}>
@@ -74,6 +78,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  authButtons: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   wordmark: { fontFamily: fonts.displayMedium, fontSize: 16, color: colors.textPrimary },
   content: { flex: 1 },
 });

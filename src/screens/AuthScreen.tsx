@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSignIn, useSignUp } from '@clerk/expo/legacy';
 import { Body, Button, Card, IconButton, Input, Label, Screen, Title } from '../components/ui';
+import { CloseIcon } from '../components/ChromeIcons';
 import Logo from '../components/Logo';
 import { colors, fonts, spacing } from '../theme/theme';
 
@@ -12,11 +13,17 @@ type Stage = 'form' | 'code';
 // a password (the Clerk instance is configured for email-code, not
 // email+password). Sign-up collects name/age up front so CompleteProfileScreen
 // can finish silently after verification instead of asking again.
-export default function AuthScreen({ onCancel }: { onCancel?: () => void }) {
+export default function AuthScreen({
+  onCancel,
+  initialMode = 'signUp',
+}: {
+  onCancel?: () => void;
+  initialMode?: Mode;
+}) {
   const { signIn, setActive: setActiveSignIn, isLoaded: signInLoaded } = useSignIn();
   const { signUp, setActive: setActiveSignUp, isLoaded: signUpLoaded } = useSignUp();
 
-  const [mode, setMode] = useState<Mode>('signUp');
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [stage, setStage] = useState<Stage>('form');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -65,14 +72,14 @@ export default function AuthScreen({ onCancel }: { onCancel?: () => void }) {
       if (mode === 'signUp') {
         const attempt = await signUp!.attemptVerification({ strategy: 'email_code', code });
         if (attempt.status === 'complete') {
-          await setActiveSignUp({ session: attempt.createdSessionId });
+          await setActiveSignUp!({ session: attempt.createdSessionId });
         } else {
           setError('Verification incomplete — try again.');
         }
       } else {
         const attempt = await signIn!.attemptFirstFactor({ strategy: 'email_code', code });
         if (attempt.status === 'complete') {
-          await setActiveSignIn({ session: attempt.createdSessionId });
+          await setActiveSignIn!({ session: attempt.createdSessionId });
         } else {
           setError('Verification incomplete — try again.');
         }
@@ -96,7 +103,7 @@ export default function AuthScreen({ onCancel }: { onCancel?: () => void }) {
       {onCancel ? (
         <View style={styles.cancelRow}>
           <IconButton onPress={onCancel}>
-            <Body style={styles.cancelGlyph}>×</Body>
+            <CloseIcon size={16} color={colors.textPrimary} />
           </IconButton>
         </View>
       ) : null}
@@ -177,11 +184,6 @@ const styles = StyleSheet.create({
   cancelRow: {
     alignItems: 'flex-start',
     marginBottom: spacing.sm,
-  },
-  cancelGlyph: {
-    color: colors.textPrimary,
-    fontSize: 20,
-    lineHeight: 20,
   },
   brandMark: {
     marginTop: spacing.md,

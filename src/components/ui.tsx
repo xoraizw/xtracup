@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, radii, shadows, spacing } from '../theme/theme';
+import { CloseIcon } from './ChromeIcons';
 
 export function Screen({
   children,
@@ -48,7 +49,7 @@ export function Screen({
           </ScrollView>
         </KeyboardAvoidingView>
       ) : (
-        <View style={styles.screenInner}>{children}</View>
+        <View style={styles.screenInnerFixed}>{children}</View>
       )}
     </SafeAreaView>
   );
@@ -123,7 +124,7 @@ const BADGE_VARIANTS = {
   neutral: { bg: colors.surfaceRaised, fg: colors.textSecondary },
   // A translucent dark scrim so the label stays legible sitting directly on
   // top of any photo, regardless of the photo's own colors.
-  onPhoto: { bg: 'rgba(43, 30, 18, 0.55)', fg: colors.onAccent },
+  onPhoto: { bg: 'rgba(43, 30, 18, 0.55)', fg: colors.onPhoto },
 } as const;
 
 export function Badge({
@@ -212,6 +213,9 @@ export function Sheet({
             <View style={styles.sheetHandleRow}>
               <View style={styles.sheetHandle} />
             </View>
+            <Pressable onPress={onRequestClose} style={styles.sheetCloseButton} hitSlop={8}>
+              <CloseIcon size={18} color={colors.textSecondary} />
+            </Pressable>
             {children}
           </View>
         </SafeAreaView>
@@ -287,6 +291,15 @@ const styles = StyleSheet.create({
   },
   screenInner: {
     flexGrow: 1,
+    padding: spacing.lg,
+  },
+  // Used by the non-scroll branch, where children include their own
+  // scrollable content (a FlatList/ScrollView) that needs a height-bounded
+  // parent to compute its own scrollable viewport — `flexGrow` alone (as
+  // `screenInner` uses for the ScrollView contentContainerStyle case) isn't
+  // enough here and left the last item unreachable past the tab bar.
+  screenInnerFixed: {
+    flex: 1,
     padding: spacing.lg,
   },
   card: {
@@ -432,22 +445,35 @@ const styles = StyleSheet.create({
   },
   sheetBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(43, 30, 18, 0.35)',
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
     justifyContent: 'flex-end',
   },
   sheetSafeArea: {
     backgroundColor: colors.background,
     borderTopLeftRadius: radii.xl,
     borderTopRightRadius: radii.xl,
+    maxHeight: '90%',
   },
   sheet: {
     backgroundColor: colors.background,
     borderTopLeftRadius: radii.xl,
     borderTopRightRadius: radii.xl,
     padding: spacing.lg,
-    maxHeight: '85%',
+    position: 'relative',
   },
   sheetHandleRow: { alignItems: 'center', marginBottom: spacing.md },
+  sheetCloseButton: {
+    position: 'absolute',
+    top: spacing.md,
+    right: spacing.md,
+    width: 32,
+    height: 32,
+    borderRadius: radii.pill,
+    backgroundColor: colors.surfaceRaised,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
   sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: colors.hairlineStrong },
   button: {
     backgroundColor: colors.accent,

@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useUser } from '@clerk/expo';
 import { useAuth } from '../../hooks/useAuth';
 import { Body, Card, EmptyState, IconButton, Label, Screen } from '../../components/ui';
+import { BackArrowIcon } from '../../components/ChromeIcons';
 import Logo from '../../components/Logo';
 import { colors, fonts, radii, shadows, spacing } from '../../theme/theme';
 import PassTierModal from './PassTierModal';
@@ -63,7 +64,7 @@ export default function CafeDetailScreen({
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <IconButton onPress={onBack}>
-          <Body style={styles.backArrow}>←</Body>
+          <BackArrowIcon size={18} color={colors.textPrimary} />
         </IconButton>
 
         <View style={styles.heroWrap}>
@@ -172,7 +173,6 @@ export default function CafeDetailScreen({
 
 const styles = StyleSheet.create({
   scrollContent: { paddingBottom: spacing.lg },
-  backArrow: { color: colors.textPrimary, fontSize: 18, lineHeight: 18 },
   heroWrap: {
     marginTop: spacing.md,
     position: 'relative',
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   watermark: { position: 'absolute', bottom: spacing.md, right: spacing.md, opacity: 0.35 },
   heroScrim: { ...StyleSheet.absoluteFill },
   heroText: { padding: spacing.lg },
-  heroName: { fontFamily: fonts.display, fontSize: 26, color: colors.onAccent, marginBottom: 2 },
+  heroName: { fontFamily: fonts.display, fontSize: 26, color: colors.onPhoto, marginBottom: 2 },
   heroCity: { fontFamily: fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.8)' },
   body: { paddingTop: spacing.lg },
   muted: { color: colors.textSecondary },

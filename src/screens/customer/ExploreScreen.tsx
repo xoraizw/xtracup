@@ -56,6 +56,7 @@ export default function ExploreScreen({ onOpenCafe }: { onOpenCafe: (cafe: Cafe)
           data={cafes}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
           ItemSeparatorComponent={() => <View style={styles.gap} />}
           renderItem={({ item }) => {
@@ -117,6 +118,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   muted: { color: colors.textSecondary, marginBottom: 0 },
+  // The tab bar isn't part of this screen's own scroll container (it's a
+  // sibling rendered by CustomerTabs below `content`), so without extra
+  // bottom padding here the last card's lower edge lands flush against the
+  // screen edge instead of clearing the floating tab bar visually.
+  listContent: { paddingBottom: spacing.xl * 2 },
   gap: { height: spacing.lg },
   skeletonList: { gap: spacing.lg },
   skeletonCard: { height: 280, borderRadius: radii.xl, backgroundColor: colors.surfaceRaised },
@@ -132,8 +138,8 @@ const styles = StyleSheet.create({
   coverScrim: { ...StyleSheet.absoluteFill },
   coverBadge: { position: 'absolute', top: spacing.md, right: spacing.md },
   coverText: { padding: spacing.lg },
-  cafeName: { fontFamily: fonts.display, fontSize: 24, color: colors.onAccent, marginBottom: 2 },
+  cafeName: { fontFamily: fonts.display, fontSize: 24, color: colors.onPhoto, marginBottom: 2 },
   cafeCity: { fontFamily: fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.8)', marginBottom: spacing.xs },
-  fromPrice: { fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.onAccent },
+  fromPrice: { fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.onPhoto },
   fromPriceMuted: { fontFamily: fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.7)' },
 });
