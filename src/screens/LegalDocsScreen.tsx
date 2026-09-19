@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View, Pressable, Text } from 'react-native';
 import { BackLink, Body, Screen, Title } from '../components/ui';
-import { colors, fonts, spacing } from '../theme/theme';
+import { fonts, spacing, type ColorPalette } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 import { LEGAL_DOCS } from '../content/legal';
 
 // Standalone viewer, reached from Profile — the acceptance gate
@@ -28,6 +29,8 @@ export function LegalDocTabs({
   activeKey: string;
   onSelect: (key: (typeof LEGAL_DOCS)[number]['key']) => void;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <View style={styles.tabRow}>
       {LEGAL_DOCS.map((d) => (
@@ -40,6 +43,8 @@ export function LegalDocTabs({
 }
 
 export function LegalDocBody({ doc }: { doc: (typeof LEGAL_DOCS)[number] }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <ScrollView style={styles.docScroll} showsVerticalScrollIndicator={false}>
       <Body style={styles.updatedLabel}>{doc.updatedLabel}</Body>
@@ -48,33 +53,35 @@ export function LegalDocBody({ doc }: { doc: (typeof LEGAL_DOCS)[number] }) {
   );
 }
 
-const styles = StyleSheet.create({
-  tabRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: colors.hairline,
-    marginBottom: spacing.md,
-  },
-  tabButton: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-  },
-  tabLabel: {
-    fontFamily: fonts.mono,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    fontSize: 11,
-    color: colors.textSecondary,
-  },
-  tabLabelActive: { color: colors.accent },
-  docScroll: { flex: 1 },
-  updatedLabel: {
-    color: colors.textSecondary,
-    fontSize: 12,
-    marginBottom: spacing.md,
-  },
-  docBody: {
-    color: colors.textPrimary,
-  },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    tabRow: {
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderBottomColor: colors.hairline,
+      marginBottom: spacing.md,
+    },
+    tabButton: {
+      flex: 1,
+      paddingVertical: spacing.sm,
+      alignItems: 'center',
+    },
+    tabLabel: {
+      fontFamily: fonts.mono,
+      textTransform: 'uppercase',
+      letterSpacing: 0.6,
+      fontSize: 11,
+      color: colors.textSecondary,
+    },
+    tabLabelActive: { color: colors.accent },
+    docScroll: { flex: 1 },
+    updatedLabel: {
+      color: colors.textSecondary,
+      fontSize: 12,
+      marginBottom: spacing.md,
+    },
+    docBody: {
+      color: colors.textPrimary,
+    },
+  });
+}

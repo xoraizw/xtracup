@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useUser } from '@clerk/expo';
 import { useAuth } from '../hooks/useAuth';
 import { Body, Button, Screen, Title } from '../components/ui';
-import { colors, spacing } from '../theme/theme';
+import { spacing, type ColorPalette } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 import { LEGAL_DOCS } from '../content/legal';
 import { LegalDocBody, LegalDocTabs } from './LegalDocsScreen';
 
@@ -15,6 +16,8 @@ import { LegalDocBody, LegalDocTabs } from './LegalDocsScreen';
 export default function AcceptLegalScreen() {
   const { user } = useUser();
   const { supabase, refreshProfile } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [activeKey, setActiveKey] = useState(LEGAL_DOCS[0].key);
   const [visited, setVisited] = useState<Set<string>>(new Set([LEGAL_DOCS[0].key]));
   const [saving, setSaving] = useState(false);
@@ -63,9 +66,11 @@ export default function AcceptLegalScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary, marginBottom: spacing.md },
-  footer: { paddingTop: spacing.md },
-  hint: { color: colors.textSecondary, marginBottom: spacing.sm, fontSize: 12 },
-  error: { color: colors.negative, marginTop: spacing.md },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary, marginBottom: spacing.md },
+    footer: { paddingTop: spacing.md },
+    hint: { color: colors.textSecondary, marginBottom: spacing.sm, fontSize: 12 },
+    error: { color: colors.negative, marginTop: spacing.md },
+  });
+}

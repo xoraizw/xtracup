@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, View, Pressable } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { BackLink, Body, Button, Card, Input, Label, Screen, Title } from '../../components/ui';
-import { colors, spacing } from '../../theme/theme';
+import { spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 import type { AppUser, Branch, Cafe } from '../../types/database';
 
 type Pane = 'list' | 'create' | 'detail' | 'branchStaff';
@@ -19,6 +20,8 @@ export default function ManageCafesScreen({
   onOpenCafeHistory: (cafe: { id: string; name: string }) => void;
 }) {
   const { supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [view, setView] = useState<Pane>('list');
   const [cafes, setCafes] = useState<Cafe[]>([]);
   const [loading, setLoading] = useState(true);
@@ -107,6 +110,8 @@ export default function ManageCafesScreen({
 
 function CreateCafeForm({ onBack, onCreated }: { onBack: () => void; onCreated: () => void }) {
   const { supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [name, setName] = useState('');
   const [city, setCity] = useState('');
   const [description, setDescription] = useState('');
@@ -172,6 +177,8 @@ function CafeDetail({
   onOpenHistory: () => void;
 }) {
   const { supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loadingBranches, setLoadingBranches] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -264,6 +271,8 @@ function CafeDetail({
 
 function BranchStaff({ branch, onBack }: { branch: Branch; onBack: () => void }) {
   const { supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [staff, setStaff] = useState<AppUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -317,14 +326,16 @@ function BranchStaff({ branch, onBack }: { branch: Branch; onBack: () => void })
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary, marginBottom: spacing.md },
-  gap: { height: spacing.lg },
-  gapSm: { height: spacing.sm },
-  spacer: { height: spacing.md },
-  error: { color: colors.negative, marginTop: spacing.md },
-  actionRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-  actionFlex: { flex: 1 },
-  branchCard: { marginBottom: spacing.sm },
-  dangerCard: { borderColor: colors.negative },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary, marginBottom: spacing.md },
+    gap: { height: spacing.lg },
+    gapSm: { height: spacing.sm },
+    spacer: { height: spacing.md },
+    error: { color: colors.negative, marginTop: spacing.md },
+    actionRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+    actionFlex: { flex: 1 },
+    branchCard: { marginBottom: spacing.sm },
+    dangerCard: { borderColor: colors.negative },
+  });
+}

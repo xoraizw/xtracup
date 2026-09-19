@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useUser } from '@clerk/expo';
 import { useAuth } from '../../hooks/useAuth';
 import { Body, Button, Card, Input, Label, Sheet, Title } from '../../components/ui';
-import { colors, fonts, spacing } from '../../theme/theme';
+import { fonts, spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 import TierCard from './TierCard';
 import type { Cafe, PassTier } from '../../types/database';
 
@@ -34,6 +35,8 @@ export default function PassTierModal({
 }) {
   const { user } = useUser();
   const { supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [selectedTier, setSelectedTier] = useState<PassTier | null>(initialTier ?? null);
   const [paymentRef, setPaymentRef] = useState('');
   const [loading, setLoading] = useState(false);
@@ -125,11 +128,13 @@ export default function PassTierModal({
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary, marginBottom: spacing.md },
-  tierScroll: { maxHeight: 420 },
-  tierCard: { marginBottom: spacing.md },
-  payAccount: { fontSize: 18, color: colors.textPrimary, marginBottom: spacing.sm, fontFamily: fonts.displayMedium },
-  spacer: { height: spacing.md },
-  error: { color: colors.negative, marginTop: spacing.md },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary, marginBottom: spacing.md },
+    tierScroll: { maxHeight: 420 },
+    tierCard: { marginBottom: spacing.md },
+    payAccount: { fontSize: 18, color: colors.textPrimary, marginBottom: spacing.sm, fontFamily: fonts.displayMedium },
+    spacer: { height: spacing.md },
+    error: { color: colors.negative, marginTop: spacing.md },
+  });
+}

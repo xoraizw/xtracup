@@ -1,12 +1,15 @@
 import React from 'react';
 import Svg, { Rect, Path } from 'react-native-svg';
-import { colors, radii } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 
 // The XtraCup mark: a caramel rounded square with a cream "X" built from two
 // crossing rounded strokes (not a literal letterform) — per the playbook's
 // brand direction, used as a small recurring corner mark, scalable from a
-// 24px header icon up to a large splash/intro treatment.
+// 24px header icon up to a large splash/intro treatment. The X strokes are
+// colored with the current background (a stencil/cutout look), so they're
+// intentionally theme-dependent rather than a fixed color.
 export default function Logo({ size = 40 }: { size?: number }) {
+  const { colors } = useTheme();
   const cornerRadius = size * 0.24;
   const strokeWidth = size * 0.16;
   const inset = size * 0.28;

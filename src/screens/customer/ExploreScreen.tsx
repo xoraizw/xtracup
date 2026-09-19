@@ -1,15 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, Image, RefreshControl, StyleSheet, View, Pressable, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../hooks/useAuth';
 import { Badge, Body, EmptyState, Screen } from '../../components/ui';
-import { colors, fonts, radii, shadows, spacing } from '../../theme/theme';
+import { fonts, radii, spacing, type ColorPalette, type ShadowPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 import type { Cafe, PassTier } from '../../types/database';
 
 type CafeWithTiers = Cafe & { pass_tiers: PassTier[] };
 
 export default function ExploreScreen({ onOpenCafe }: { onOpenCafe: (cafe: Cafe) => void }) {
   const { supabase } = useAuth();
+  const { colors, shadows } = useTheme();
+  const styles = useMemo(() => makeStyles(colors, shadows), [colors, shadows]);
   const [cafes, setCafes] = useState<CafeWithTiers[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -100,46 +103,48 @@ export default function ExploreScreen({ onOpenCafe }: { onOpenCafe: (cafe: Cafe)
   );
 }
 
-const styles = StyleSheet.create({
-  headerBlock: { marginBottom: spacing.lg },
-  kicker: {
-    fontFamily: fonts.mono,
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-    fontSize: 12,
-    color: colors.accent,
-    marginBottom: spacing.xs,
-  },
-  heading: {
-    fontFamily: fonts.display,
-    fontSize: 34,
-    lineHeight: 38,
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-  },
-  muted: { color: colors.textSecondary, marginBottom: 0 },
-  // The tab bar isn't part of this screen's own scroll container (it's a
-  // sibling rendered by CustomerTabs below `content`), so without extra
-  // bottom padding here the last card's lower edge lands flush against the
-  // screen edge instead of clearing the floating tab bar visually.
-  listContent: { paddingBottom: spacing.xl * 2 },
-  gap: { height: spacing.lg },
-  skeletonList: { gap: spacing.lg },
-  skeletonCard: { height: 280, borderRadius: radii.xl, backgroundColor: colors.surfaceRaised },
-  cafeCard: {
-    borderRadius: radii.xl,
-    overflow: 'hidden',
-    backgroundColor: colors.surface,
-    ...shadows.raised,
-  },
-  coverWrap: { position: 'relative', height: 280, justifyContent: 'flex-end' },
-  coverImage: { ...StyleSheet.absoluteFill, backgroundColor: colors.surfaceRaised },
-  coverPlaceholder: { ...StyleSheet.absoluteFill, backgroundColor: colors.surfaceRaised },
-  coverScrim: { ...StyleSheet.absoluteFill },
-  coverBadge: { position: 'absolute', top: spacing.md, right: spacing.md },
-  coverText: { padding: spacing.lg },
-  cafeName: { fontFamily: fonts.display, fontSize: 24, color: colors.onPhoto, marginBottom: 2 },
-  cafeCity: { fontFamily: fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.8)', marginBottom: spacing.xs },
-  fromPrice: { fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.onPhoto },
-  fromPriceMuted: { fontFamily: fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.7)' },
-});
+function makeStyles(colors: ColorPalette, shadows: ShadowPalette) {
+  return StyleSheet.create({
+    headerBlock: { marginBottom: spacing.lg },
+    kicker: {
+      fontFamily: fonts.mono,
+      textTransform: 'uppercase',
+      letterSpacing: 2,
+      fontSize: 12,
+      color: colors.accent,
+      marginBottom: spacing.xs,
+    },
+    heading: {
+      fontFamily: fonts.display,
+      fontSize: 34,
+      lineHeight: 38,
+      color: colors.textPrimary,
+      marginBottom: spacing.sm,
+    },
+    muted: { color: colors.textSecondary, marginBottom: 0 },
+    // The tab bar isn't part of this screen's own scroll container (it's a
+    // sibling rendered by CustomerTabs below `content`), so without extra
+    // bottom padding here the last card's lower edge lands flush against the
+    // screen edge instead of clearing the floating tab bar visually.
+    listContent: { paddingBottom: spacing.xl * 2 },
+    gap: { height: spacing.lg },
+    skeletonList: { gap: spacing.lg },
+    skeletonCard: { height: 280, borderRadius: radii.xl, backgroundColor: colors.surfaceRaised },
+    cafeCard: {
+      borderRadius: radii.xl,
+      overflow: 'hidden',
+      backgroundColor: colors.surface,
+      ...shadows.raised,
+    },
+    coverWrap: { position: 'relative', height: 280, justifyContent: 'flex-end' },
+    coverImage: { ...StyleSheet.absoluteFill, backgroundColor: colors.surfaceRaised },
+    coverPlaceholder: { ...StyleSheet.absoluteFill, backgroundColor: colors.surfaceRaised },
+    coverScrim: { ...StyleSheet.absoluteFill },
+    coverBadge: { position: 'absolute', top: spacing.md, right: spacing.md },
+    coverText: { padding: spacing.lg },
+    cafeName: { fontFamily: fonts.display, fontSize: 24, color: colors.onPhoto, marginBottom: 2 },
+    cafeCity: { fontFamily: fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.8)', marginBottom: spacing.xs },
+    fromPrice: { fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.onPhoto },
+    fromPriceMuted: { fontFamily: fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.7)' },
+  });
+}

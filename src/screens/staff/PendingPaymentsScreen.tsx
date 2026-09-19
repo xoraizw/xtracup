@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { invokeFunction } from '../../lib/supabase';
 import { Body, Button, Card, Label, Screen, Title } from '../../components/ui';
-import { colors, spacing } from '../../theme/theme';
+import { spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 import type { Pass } from '../../types/database';
 
 type PendingPass = Pass & { users: { name: string | null; phone: string } | null };
@@ -20,6 +21,8 @@ function ageLabel(createdAt: string): { text: string; stale: boolean } {
 
 export default function PendingPaymentsScreen() {
   const { supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [pending, setPending] = useState<PendingPass[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -117,14 +120,16 @@ export default function PendingPaymentsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary },
-  error: { color: colors.negative, marginBottom: spacing.md },
-  gap: { height: spacing.md },
-  gapSm: { height: spacing.sm },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  staleAge: { color: colors.negative },
-  staleWarning: { color: colors.negative, marginTop: spacing.sm, fontSize: 13 },
-  actionRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-  actionFlex: { flex: 1 },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary },
+    error: { color: colors.negative, marginBottom: spacing.md },
+    gap: { height: spacing.md },
+    gapSm: { height: spacing.sm },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    staleAge: { color: colors.negative },
+    staleWarning: { color: colors.negative, marginTop: spacing.sm, fontSize: 13 },
+    actionRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+    actionFlex: { flex: 1 },
+  });
+}

@@ -1,11 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
 import { randomUUID } from 'expo-crypto';
 import { useAuth } from '../../hooks/useAuth';
 import { pickAndUploadPhoto } from '../../lib/photoUpload';
 import { resolveCafeIdForBranch } from '../../lib/supabase';
 import { BackLink, Body, Button, Card, Label, Screen, Title } from '../../components/ui';
-import { colors, spacing } from '../../theme/theme';
+import { spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 import type { Cafe, MenuPhoto } from '../../types/database';
 
 // Staff-managed — cover photo shown on the Explore card, plus a gallery of
@@ -14,6 +15,8 @@ import type { Cafe, MenuPhoto } from '../../types/database';
 // brand — see 0008_photo_storage.sql), no Edge Function needed.
 export default function PhotosScreen({ onBack }: { onBack: () => void }) {
   const { supabase, profile } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [cafe, setCafe] = useState<Cafe | null>(null);
   const [menuPhotos, setMenuPhotos] = useState<MenuPhoto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -145,14 +148,16 @@ export default function PhotosScreen({ onBack }: { onBack: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary, marginBottom: spacing.md },
-  card: { marginBottom: 0 },
-  gap: { height: spacing.lg },
-  spacer: { height: spacing.md },
-  coverPreview: { width: '100%', height: 140, borderRadius: 12, backgroundColor: colors.surfaceRaised },
-  menuScroll: { marginTop: spacing.sm },
-  menuPhotoWrap: { marginRight: spacing.md, width: 120 },
-  menuPhoto: { width: 120, height: 120, borderRadius: 10, marginBottom: spacing.sm, backgroundColor: colors.surfaceRaised },
-  error: { color: colors.negative, marginTop: spacing.md },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary, marginBottom: spacing.md },
+    card: { marginBottom: 0 },
+    gap: { height: spacing.lg },
+    spacer: { height: spacing.md },
+    coverPreview: { width: '100%', height: 140, borderRadius: 12, backgroundColor: colors.surfaceRaised },
+    menuScroll: { marginTop: spacing.sm },
+    menuPhotoWrap: { marginRight: spacing.md, width: 120 },
+    menuPhoto: { width: 120, height: 120, borderRadius: 10, marginBottom: spacing.sm, backgroundColor: colors.surfaceRaised },
+    error: { color: colors.negative, marginTop: spacing.md },
+  });
+}

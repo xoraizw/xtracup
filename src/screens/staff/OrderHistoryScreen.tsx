@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { invokeFunction } from '../../lib/supabase';
 import { BackLink, Body, Button, Card, Input, Label, Screen, Title } from '../../components/ui';
-import { spacing, colors } from '../../theme/theme';
+import { spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 import type { Redemption } from '../../types/database';
 
 type OrderRow = Redemption & {
@@ -17,6 +18,8 @@ type OrderRow = Redemption & {
 // server-side-only mutation pattern as redeem itself.
 export default function OrderHistoryScreen({ onBack }: { onBack: () => void }) {
   const { supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [rows, setRows] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
@@ -109,12 +112,14 @@ export default function OrderHistoryScreen({ onBack }: { onBack: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary },
-  error: { color: colors.negative, marginBottom: spacing.md },
-  gap: { height: spacing.md },
-  spacer: { height: spacing.sm },
-  search: { marginVertical: spacing.md },
-  refundedCard: { opacity: 0.6 },
-  refundedLabel: { color: colors.negative, fontSize: 12, marginTop: spacing.xs },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary },
+    error: { color: colors.negative, marginBottom: spacing.md },
+    gap: { height: spacing.md },
+    spacer: { height: spacing.sm },
+    search: { marginVertical: spacing.md },
+    refundedCard: { opacity: 0.6 },
+    refundedLabel: { color: colors.negative, fontSize: 12, marginTop: spacing.xs },
+  });
+}

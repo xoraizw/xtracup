@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { Body, Card, Label, Screen, StatTile, Title } from '../../components/ui';
-import { spacing, colors } from '../../theme/theme';
+import { spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 import type { Redemption } from '../../types/database';
 
 type RedemptionRow = Redemption & { passes: { users: { name: string | null; phone: string } | null } | null };
@@ -15,6 +16,8 @@ function startOfToday() {
 
 export default function RedemptionsScreen() {
   const { supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [rows, setRows] = useState<RedemptionRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -64,8 +67,10 @@ export default function RedemptionsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary },
-  gap: { height: spacing.lg },
-  gapSm: { height: spacing.md },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary },
+    gap: { height: spacing.lg },
+    gapSm: { height: spacing.md },
+  });
+}

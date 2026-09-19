@@ -3,7 +3,8 @@ import { FlatList, StyleSheet, View, Pressable } from 'react-native';
 import { useUser } from '@clerk/expo';
 import { useAuth } from '../../hooks/useAuth';
 import { Badge, Body, Card, EmptyState, Label, ProgressBar, Screen, StatTile, Title } from '../../components/ui';
-import { colors, fonts, spacing } from '../../theme/theme';
+import { fonts, spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 import PassDetailScreen from './PassDetailScreen';
 import type { Cafe, Pass, PassStatus, PassTier } from '../../types/database';
 
@@ -36,6 +37,8 @@ const CONFIRMED_STATUSES: PassStatus[] = ['active', 'expired', 'depleted'];
 export default function MyPassesScreen({ onExplore }: { onExplore: () => void }) {
   const { user } = useUser();
   const { supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [passes, setPasses] = useState<PassRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [openPassId, setOpenPassId] = useState<string | null>(null);
@@ -136,12 +139,14 @@ export default function MyPassesScreen({ onExplore }: { onExplore: () => void })
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary, marginBottom: spacing.md },
-  gap: { height: spacing.md },
-  metrics: { gap: spacing.md, marginBottom: spacing.lg },
-  metricsRow: { flexDirection: 'row', gap: spacing.md },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs },
-  cafeName: { fontFamily: fonts.displayMedium, fontSize: 16, color: colors.textPrimary },
-  progressRow: { marginTop: spacing.sm, marginBottom: spacing.sm },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary, marginBottom: spacing.md },
+    gap: { height: spacing.md },
+    metrics: { gap: spacing.md, marginBottom: spacing.lg },
+    metricsRow: { flexDirection: 'row', gap: spacing.md },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs },
+    cafeName: { fontFamily: fonts.displayMedium, fontSize: 16, color: colors.textPrimary },
+    progressRow: { marginTop: spacing.sm, marginBottom: spacing.sm },
+  });
+}

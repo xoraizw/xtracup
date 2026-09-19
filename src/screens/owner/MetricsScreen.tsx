@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { invokeFunction } from '../../lib/supabase';
 import { BackLink, Body, Button, Screen, StatTile, Title } from '../../components/ui';
-import { colors, spacing } from '../../theme/theme';
+import { spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 
 type Metrics = {
   window_days: number;
@@ -30,6 +31,8 @@ export default function MetricsScreen({
   cafeFilter?: { id: string; name: string } | null;
 }) {
   const { profile, supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [windowDays, setWindowDays] = useState(30);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -100,10 +103,12 @@ export default function MetricsScreen({
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary },
-  error: { color: colors.negative },
-  windowRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
-  windowButtonWrap: { flex: 1 },
-  statRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.md },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary },
+    error: { color: colors.negative },
+    windowRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg },
+    windowButtonWrap: { flex: 1 },
+    statRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.md },
+  });
+}

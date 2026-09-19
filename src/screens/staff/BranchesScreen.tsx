@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View, Pressable } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { resolveCafeIdForBranch } from '../../lib/supabase';
 import { BackLink, Body, Button, Card, Input, Label, Screen, Title } from '../../components/ui';
-import { colors, fonts, spacing } from '../../theme/theme';
+import { fonts, spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 import type { Branch } from '../../types/database';
 
 function randomInviteCode(): string {
@@ -21,6 +22,8 @@ function randomInviteCode(): string {
 // where set (see 0007_brand_branch_split.sql's branches_invite_code_idx).
 export default function BranchesScreen({ onBack }: { onBack: () => void }) {
   const { supabase, profile } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [cafeId, setCafeId] = useState<string | null>(null);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,6 +121,8 @@ function BranchForm({
   onSaved: () => void;
 }) {
   const { supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [name, setName] = useState(branch?.name ?? '');
   const [address, setAddress] = useState(branch?.address ?? '');
   const [inviteCode, setInviteCode] = useState(branch?.invite_code ?? randomInviteCode());
@@ -170,12 +175,14 @@ function BranchForm({
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary, marginBottom: spacing.lg },
-  gap: { height: spacing.lg },
-  spacer: { height: spacing.md },
-  hint: { color: colors.textSecondary, fontSize: 12, marginTop: spacing.sm },
-  error: { color: colors.negative, marginTop: spacing.md },
-  branchCard: { marginBottom: spacing.md },
-  branchName: { fontFamily: fonts.displayMedium, fontSize: 16, color: colors.textPrimary },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary, marginBottom: spacing.lg },
+    gap: { height: spacing.lg },
+    spacer: { height: spacing.md },
+    hint: { color: colors.textSecondary, fontSize: 12, marginTop: spacing.sm },
+    error: { color: colors.negative, marginTop: spacing.md },
+    branchCard: { marginBottom: spacing.md },
+    branchName: { fontFamily: fonts.displayMedium, fontSize: 16, color: colors.textPrimary },
+  });
+}

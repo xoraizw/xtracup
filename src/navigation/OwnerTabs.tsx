@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import ManageCafesScreen from '../screens/owner/ManageCafesScreen';
 import MetricsScreen from '../screens/owner/MetricsScreen';
@@ -6,7 +6,8 @@ import HistoryScreen from '../screens/owner/HistoryScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import AppHeader from '../components/AppHeader';
 import TabBarButton from '../components/TabBarButton';
-import { colors, spacing } from '../theme/theme';
+import { spacing, type ColorPalette } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 
 type Tab = 'cafes' | 'profile';
 type CafesSection =
@@ -19,6 +20,8 @@ type CafesSection =
 // (owner never buys/holds a pass). Metrics and Pass History are reached
 // per-cafe from inside Manage Cafes, or as an all-cafes aggregate from here.
 export default function OwnerTabs() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [tab, setTab] = useState<Tab>('cafes');
   const [cafesSection, setCafesSection] = useState<CafesSection>({ view: 'manage' });
 
@@ -66,14 +69,16 @@ export default function OwnerTabs() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  content: { flex: 1 },
-  tabBar: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    borderTopColor: colors.hairline,
-    paddingBottom: spacing.lg,
-    paddingTop: spacing.sm,
-  },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    content: { flex: 1 },
+    tabBar: {
+      flexDirection: 'row',
+      borderTopWidth: 1,
+      borderTopColor: colors.hairline,
+      paddingBottom: spacing.lg,
+      paddingTop: spacing.sm,
+    },
+  });
+}

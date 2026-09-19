@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, View, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useUser } from '@clerk/expo';
@@ -6,7 +6,8 @@ import { useAuth } from '../../hooks/useAuth';
 import { Body, Card, EmptyState, IconButton, Label, Screen } from '../../components/ui';
 import { BackArrowIcon } from '../../components/ChromeIcons';
 import Logo from '../../components/Logo';
-import { colors, fonts, radii, shadows, spacing } from '../../theme/theme';
+import { fonts, radii, spacing, type ColorPalette, type ShadowPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 import PassTierModal from './PassTierModal';
 import TierCard from './TierCard';
 import type { Branch, Cafe, MenuPhoto, PassTier } from '../../types/database';
@@ -24,6 +25,8 @@ export default function CafeDetailScreen({
 }) {
   const { user } = useUser();
   const { supabase } = useAuth();
+  const { colors, shadows } = useTheme();
+  const styles = useMemo(() => makeStyles(colors, shadows), [colors, shadows]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [tiers, setTiers] = useState<PassTier[]>([]);
   const [menuPhotos, setMenuPhotos] = useState<MenuPhoto[]>([]);
@@ -171,36 +174,38 @@ export default function CafeDetailScreen({
   );
 }
 
-const styles = StyleSheet.create({
-  scrollContent: { paddingBottom: spacing.lg },
-  heroWrap: {
-    marginTop: spacing.md,
-    position: 'relative',
-    height: 220,
-    justifyContent: 'flex-end',
-    overflow: 'hidden',
-    borderRadius: radii.xl,
-    backgroundColor: colors.surface,
-    ...shadows.raised,
-  },
-  hero: { ...StyleSheet.absoluteFill, backgroundColor: colors.surfaceRaised },
-  heroPlaceholder: { ...StyleSheet.absoluteFill },
-  watermark: { position: 'absolute', bottom: spacing.md, right: spacing.md, opacity: 0.35 },
-  heroScrim: { ...StyleSheet.absoluteFill },
-  heroText: { padding: spacing.lg },
-  heroName: { fontFamily: fonts.display, fontSize: 26, color: colors.onPhoto, marginBottom: 2 },
-  heroCity: { fontFamily: fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.8)' },
-  body: { paddingTop: spacing.lg },
-  muted: { color: colors.textSecondary },
-  infoCard: { gap: spacing.md },
-  infoRow: { gap: 2 },
-  infoDivider: { height: 1, backgroundColor: colors.hairline },
-  description: { color: colors.textPrimary, fontSize: 16, lineHeight: 23, marginTop: spacing.lg },
-  section: { marginTop: spacing.xl },
-  sectionTitle: { fontFamily: fonts.display, fontSize: 22, color: colors.textPrimary, marginBottom: spacing.md },
-  menuScroll: { marginTop: spacing.xs },
-  menuPhoto: { width: 160, height: 160, borderRadius: radii.md, marginRight: spacing.sm, backgroundColor: colors.surfaceRaised },
-  branchCard: { marginTop: spacing.sm },
-  branchPhoto: { width: '100%', height: 100, borderRadius: radii.sm, marginBottom: spacing.sm, backgroundColor: colors.surfaceRaised },
-  branchName: { fontFamily: fonts.displayMedium, fontSize: 15, color: colors.textPrimary },
-});
+function makeStyles(colors: ColorPalette, shadows: ShadowPalette) {
+  return StyleSheet.create({
+    scrollContent: { paddingBottom: spacing.lg },
+    heroWrap: {
+      marginTop: spacing.md,
+      position: 'relative',
+      height: 220,
+      justifyContent: 'flex-end',
+      overflow: 'hidden',
+      borderRadius: radii.xl,
+      backgroundColor: colors.surface,
+      ...shadows.raised,
+    },
+    hero: { ...StyleSheet.absoluteFill, backgroundColor: colors.surfaceRaised },
+    heroPlaceholder: { ...StyleSheet.absoluteFill },
+    watermark: { position: 'absolute', bottom: spacing.md, right: spacing.md, opacity: 0.35 },
+    heroScrim: { ...StyleSheet.absoluteFill },
+    heroText: { padding: spacing.lg },
+    heroName: { fontFamily: fonts.display, fontSize: 26, color: colors.onPhoto, marginBottom: 2 },
+    heroCity: { fontFamily: fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.8)' },
+    body: { paddingTop: spacing.lg },
+    muted: { color: colors.textSecondary },
+    infoCard: { gap: spacing.md },
+    infoRow: { gap: 2 },
+    infoDivider: { height: 1, backgroundColor: colors.hairline },
+    description: { color: colors.textPrimary, fontSize: 16, lineHeight: 23, marginTop: spacing.lg },
+    section: { marginTop: spacing.xl },
+    sectionTitle: { fontFamily: fonts.display, fontSize: 22, color: colors.textPrimary, marginBottom: spacing.md },
+    menuScroll: { marginTop: spacing.xs },
+    menuPhoto: { width: 160, height: 160, borderRadius: radii.md, marginRight: spacing.sm, backgroundColor: colors.surfaceRaised },
+    branchCard: { marginTop: spacing.sm },
+    branchPhoto: { width: '100%', height: 100, borderRadius: radii.sm, marginBottom: spacing.sm, backgroundColor: colors.surfaceRaised },
+    branchName: { fontFamily: fonts.displayMedium, fontSize: 15, color: colors.textPrimary },
+  });
+}

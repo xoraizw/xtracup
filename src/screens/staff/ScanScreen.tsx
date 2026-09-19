@@ -1,10 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useAuth } from '../../hooks/useAuth';
 import { invokeFunction } from '../../lib/supabase';
 import { Body, Button, Card, Screen, Title } from '../../components/ui';
-import { colors, spacing } from '../../theme/theme';
+import { spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 
 type ScanResult = {
   ok: boolean;
@@ -26,6 +27,8 @@ type Stage = 'scanning' | 'confirming' | 'done';
 
 export default function ScanScreen() {
   const { isSignedIn, supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [permission, requestPermission] = useCameraPermissions();
   const [stage, setStage] = useState<Stage>('scanning');
   const [result, setResult] = useState<ScanResult | null>(null);
@@ -193,20 +196,22 @@ export default function ScanScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary, marginBottom: spacing.lg },
-  cameraWrap: {
-    flex: 1,
-    borderRadius: 18,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.hairline,
-  },
-  camera: { flex: 1 },
-  confirmCard: { borderColor: colors.accent },
-  confirmName: { fontSize: 18, marginTop: spacing.sm, marginBottom: spacing.xs, color: colors.textPrimary },
-  successCard: { borderColor: colors.positive },
-  errorCard: { borderColor: colors.negative },
-  celebrateEmoji: { fontSize: 40, marginBottom: spacing.sm },
-  spacer: { height: spacing.md },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary, marginBottom: spacing.lg },
+    cameraWrap: {
+      flex: 1,
+      borderRadius: 18,
+      overflow: 'hidden',
+      borderWidth: 1,
+      borderColor: colors.hairline,
+    },
+    camera: { flex: 1 },
+    confirmCard: { borderColor: colors.accent },
+    confirmName: { fontSize: 18, marginTop: spacing.sm, marginBottom: spacing.xs, color: colors.textPrimary },
+    successCard: { borderColor: colors.positive },
+    errorCard: { borderColor: colors.negative },
+    celebrateEmoji: { fontSize: 40, marginBottom: spacing.sm },
+    spacer: { height: spacing.md },
+  });
+}

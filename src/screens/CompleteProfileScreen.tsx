@@ -1,15 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useUser } from '@clerk/expo';
 import { useAuth } from '../hooks/useAuth';
 import { Body, Button, Card, Input, Label, Screen, Title } from '../components/ui';
-import { spacing, colors } from '../theme/theme';
+import { spacing, type ColorPalette } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 import { STAFF_OWNER_POV_ENABLED } from '../config/features';
 import JoinStaffScreen from './JoinStaffScreen';
 
 export default function CompleteProfileScreen() {
   const { user } = useUser();
   const { supabase, refreshProfile } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -91,9 +94,11 @@ export default function CompleteProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary, marginBottom: spacing.lg },
-  spacer: { height: spacing.md },
-  error: { color: colors.negative, marginTop: spacing.md },
-  settingUp: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary, marginBottom: spacing.lg },
+    spacer: { height: spacing.md },
+    error: { color: colors.negative, marginTop: spacing.md },
+    settingUp: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
+  });
+}

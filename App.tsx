@@ -24,7 +24,7 @@ import CustomerTabs from './src/navigation/CustomerTabs';
 import GuestTabs from './src/navigation/GuestTabs';
 import StaffTabs from './src/navigation/StaffTabs';
 import OwnerTabs from './src/navigation/OwnerTabs';
-import { colors } from './src/theme/theme';
+import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
 import { STAFF_OWNER_POV_ENABLED } from './src/config/features';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -35,6 +35,7 @@ if (!clerkPublishableKey) {
 }
 
 function LoadingScreen() {
+  const { colors } = useTheme();
   return (
     <View style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
       <ActivityIndicator color={colors.accent} />
@@ -89,18 +90,25 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <View style={{ flex: 1 }} onLayout={onLayout}>
-        {introDone ? (
-          <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={tokenCache}>
-            <AuthProvider>
-              <RootNavigator />
-            </AuthProvider>
-          </ClerkProvider>
-        ) : (
-          <IntroScreen onDone={() => setIntroDone(true)} />
-        )}
-        <StatusBar style="dark" />
-      </View>
+      <ThemeProvider>
+        <View style={{ flex: 1 }} onLayout={onLayout}>
+          {introDone ? (
+            <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={tokenCache}>
+              <AuthProvider>
+                <RootNavigator />
+              </AuthProvider>
+            </ClerkProvider>
+          ) : (
+            <IntroScreen onDone={() => setIntroDone(true)} />
+          )}
+          <ThemedStatusBar />
+        </View>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
+}
+
+function ThemedStatusBar() {
+  const { mode } = useTheme();
+  return <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />;
 }

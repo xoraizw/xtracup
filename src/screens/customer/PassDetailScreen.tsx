@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useAuth } from '../../hooks/useAuth';
 import { invokeFunction } from '../../lib/supabase';
 import { BackLink, Body, Card, Label, ProgressBar, Screen, StatTile, Title } from '../../components/ui';
-import { colors, spacing } from '../../theme/theme';
+import { spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 import type { Pass } from '../../types/database';
 
 function formatWait(ms: number): string {
@@ -27,6 +28,8 @@ export default function PassDetailScreen({
   onBack: () => void;
 }) {
   const { supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [pass, setPass] = useState<Pass | null>(null);
   const [qrPayload, setQrPayload] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -231,12 +234,14 @@ export default function PassDetailScreen({
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary, marginBottom: spacing.md },
-  error: { color: colors.negative, marginBottom: spacing.md },
-  statRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
-  progressRow: { marginBottom: spacing.lg },
-  qrCard: { alignItems: 'center' },
-  qrWrap: { paddingVertical: spacing.lg },
-  waitCard: { alignItems: 'center', paddingVertical: spacing.lg },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary, marginBottom: spacing.md },
+    error: { color: colors.negative, marginBottom: spacing.md },
+    statRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
+    progressRow: { marginBottom: spacing.lg },
+    qrCard: { alignItems: 'center' },
+    qrWrap: { paddingVertical: spacing.lg },
+    waitCard: { alignItems: 'center', paddingVertical: spacing.lg },
+  });
+}

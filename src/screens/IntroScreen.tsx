@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 import Svg, { Rect, Path, Ellipse, ClipPath, Defs } from 'react-native-svg';
-import { colors, fonts } from '../theme/theme';
+import { fonts, type ColorPalette } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
@@ -22,6 +23,8 @@ const HOLD_DURATION = 350;
 // bulging droplet at its leading tip — stretches down toward the mark, then
 // a splash flares on impact and the mark's interior fills as if receiving it.
 export default function IntroScreen({ onDone }: { onDone: () => void }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const streamProgress = useRef(new Animated.Value(0)).current;
   const streamOpacity = useRef(new Animated.Value(0)).current;
   const splashScaleX = useRef(new Animated.Value(0.3)).current;
@@ -243,29 +246,31 @@ function wavePath(fillHeight: number): string {
   ].join(' ');
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  markGroup: {
-    alignItems: 'center',
-  },
-  streamBox: {
-    height: STREAM_HEIGHT,
-    marginBottom: STREAM_GAP,
-  },
-  splash: {
-    position: 'absolute',
-    top: STREAM_HEIGHT + STREAM_GAP - 6,
-  },
-  wordmark: {
-    marginTop: 20,
-    fontFamily: fonts.display,
-    fontSize: 22,
-    color: colors.textPrimary,
-    letterSpacing: 0.5,
-  },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    markGroup: {
+      alignItems: 'center',
+    },
+    streamBox: {
+      height: STREAM_HEIGHT,
+      marginBottom: STREAM_GAP,
+    },
+    splash: {
+      position: 'absolute',
+      top: STREAM_HEIGHT + STREAM_GAP - 6,
+    },
+    wordmark: {
+      marginTop: 20,
+      fontFamily: fonts.display,
+      fontSize: 22,
+      color: colors.textPrimary,
+      letterSpacing: 0.5,
+    },
+  });
+}

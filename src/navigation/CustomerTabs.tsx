@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import ExploreScreen from '../screens/customer/ExploreScreen';
 import CafeDetailScreen from '../screens/customer/CafeDetailScreen';
@@ -8,13 +8,16 @@ import AppHeader from '../components/AppHeader';
 import TabBarButton from '../components/TabBarButton';
 import RedemptionCelebration from '../components/RedemptionCelebration';
 import { useAuth } from '../hooks/useAuth';
-import { colors, radii, shadows, spacing } from '../theme/theme';
+import { radii, spacing, type ColorPalette, type ShadowPalette } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 import type { Cafe, PassTier } from '../types/database';
 
 type Tab = 'passes' | 'explore' | 'profile';
 
 export default function CustomerTabs() {
   const { pendingPurchase, setPendingPurchase } = useAuth();
+  const { colors, shadows } = useTheme();
+  const styles = useMemo(() => makeStyles(colors, shadows), [colors, shadows]);
   const [tab, setTab] = useState<Tab>('explore');
   const [openCafe, setOpenCafe] = useState<Cafe | null>(null);
   const [resumeTier, setResumeTier] = useState<PassTier | null>(null);
@@ -68,19 +71,21 @@ export default function CustomerTabs() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  content: { flex: 1 },
-  tabBarWrap: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
-  },
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: colors.surface,
-    borderRadius: radii.xl,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.xs,
-    ...shadows.raised,
-  },
-});
+function makeStyles(colors: ColorPalette, shadows: ShadowPalette) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    content: { flex: 1 },
+    tabBarWrap: {
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.md,
+    },
+    tabBar: {
+      flexDirection: 'row',
+      backgroundColor: colors.surface,
+      borderRadius: radii.xl,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.xs,
+      ...shadows.raised,
+    },
+  });
+}

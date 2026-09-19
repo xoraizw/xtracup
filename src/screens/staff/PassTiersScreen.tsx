@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View, Pressable } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { resolveCafeIdForBranch } from '../../lib/supabase';
 import { BackLink, Body, Button, Card, Input, Label, Screen, Title } from '../../components/ui';
-import { colors, fonts, spacing } from '../../theme/theme';
+import { fonts, spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 import type { PassTier } from '../../types/database';
 
 // Staff-managed — a brand can offer several prepay bundles (Starter,
@@ -12,6 +13,8 @@ import type { PassTier } from '../../types/database';
 // cafe_id derived from the staff's branch, see 0007_brand_branch_split.sql).
 export default function PassTiersScreen({ onBack }: { onBack: () => void }) {
   const { supabase, profile } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [cafeId, setCafeId] = useState<string | null>(null);
   const [tiers, setTiers] = useState<PassTier[]>([]);
   const [loading, setLoading] = useState(true);
@@ -112,6 +115,8 @@ function TierForm({
   onSaved: () => void;
 }) {
   const { supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [name, setName] = useState(tier?.name ?? '');
   const [cups, setCups] = useState(tier ? String(tier.cups) : '15');
   const [pricePkr, setPricePkr] = useState(tier ? String(tier.price_pkr) : '');
@@ -220,14 +225,16 @@ function TierForm({
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary, marginBottom: spacing.lg },
-  gap: { height: spacing.lg },
-  spacer: { height: spacing.md },
-  error: { color: colors.negative, marginTop: spacing.md },
-  hint: { color: colors.textSecondary, fontSize: 12, marginTop: spacing.sm },
-  tierCard: { marginBottom: spacing.md },
-  tierHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs },
-  tierName: { fontFamily: fonts.displayMedium, fontSize: 16, color: colors.textPrimary },
-  inactive: { color: colors.negative, fontSize: 12 },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary, marginBottom: spacing.lg },
+    gap: { height: spacing.lg },
+    spacer: { height: spacing.md },
+    error: { color: colors.negative, marginTop: spacing.md },
+    hint: { color: colors.textSecondary, fontSize: 12, marginTop: spacing.sm },
+    tierCard: { marginBottom: spacing.md },
+    tierHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs },
+    tierName: { fontFamily: fonts.displayMedium, fontSize: 16, color: colors.textPrimary },
+    inactive: { color: colors.negative, fontSize: 12 },
+  });
+}

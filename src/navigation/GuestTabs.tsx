@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ExploreScreen from '../screens/customer/ExploreScreen';
@@ -7,7 +7,8 @@ import AuthScreen from '../screens/AuthScreen';
 import Logo from '../components/Logo';
 import { Body, Button } from '../components/ui';
 import { useAuth } from '../hooks/useAuth';
-import { colors, fonts, shadows, spacing } from '../theme/theme';
+import { fonts, spacing, type ColorPalette, type ShadowPalette } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 import type { Cafe, PassTier } from '../types/database';
 
 // The signed-out experience: browse cafés and pass tiers freely, no
@@ -17,6 +18,8 @@ import type { Cafe, PassTier } from '../types/database';
 // `onCancel` just lets someone back out of AuthScreen to keep browsing.
 export default function GuestTabs() {
   const { setPendingPurchase } = useAuth();
+  const { colors, shadows } = useTheme();
+  const styles = useMemo(() => makeStyles(colors, shadows), [colors, shadows]);
   const [openCafe, setOpenCafe] = useState<Cafe | null>(null);
   const [authMode, setAuthMode] = useState<'signUp' | 'signIn' | null>(null);
 
@@ -62,23 +65,25 @@ export default function GuestTabs() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: {
-    backgroundColor: colors.surface,
-    ...shadows.card,
-    shadowOpacity: 0.05,
-    zIndex: 1,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-  },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  authButtons: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  wordmark: { fontFamily: fonts.displayMedium, fontSize: 16, color: colors.textPrimary },
-  content: { flex: 1 },
-});
+function makeStyles(colors: ColorPalette, shadows: ShadowPalette) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    header: {
+      backgroundColor: colors.surface,
+      ...shadows.card,
+      shadowOpacity: 0.05,
+      zIndex: 1,
+    },
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+    },
+    brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    authButtons: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    wordmark: { fontFamily: fonts.displayMedium, fontSize: 16, color: colors.textPrimary },
+    content: { flex: 1 },
+  });
+}

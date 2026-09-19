@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useUser } from '@clerk/expo';
 import { useAuth } from '../hooks/useAuth';
 import { invokeFunction } from '../lib/supabase';
 import { Body, Button, Card, Input, Label, Screen, Title } from '../components/ui';
-import { spacing, colors } from '../theme/theme';
+import { spacing, type ColorPalette } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 
 // Reached either from CompleteProfileScreen (brand-new sign-up going
 // straight to staff) or a "Become staff" link for existing customers —
@@ -20,6 +21,8 @@ export default function JoinStaffScreen({
 }) {
   const { user } = useUser();
   const { supabase, refreshProfile } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [name, setName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -77,8 +80,10 @@ export default function JoinStaffScreen({
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary, marginBottom: spacing.lg },
-  spacer: { height: spacing.md },
-  error: { color: colors.negative, marginTop: spacing.md },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary, marginBottom: spacing.lg },
+    spacer: { height: spacing.md },
+    error: { color: colors.negative, marginTop: spacing.md },
+  });
+}

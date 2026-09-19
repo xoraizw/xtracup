@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
-import { colors, fonts, radii, shadows, spacing } from '../theme/theme';
+import { fonts, radii, spacing, type ColorPalette, type ShadowPalette } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 import type { Pass } from '../types/database';
 
 // Mounted once at the customer tab shell so it can pop up over whatever
@@ -12,6 +13,8 @@ import type { Pass } from '../types/database';
 // screen to be mounted.
 export default function RedemptionCelebration() {
   const { supabase, profile } = useAuth();
+  const { colors, shadows } = useTheme();
+  const styles = useMemo(() => makeStyles(colors, shadows), [colors, shadows]);
   const [visible, setVisible] = useState(false);
   const [cupsRemaining, setCupsRemaining] = useState(0);
   const anim = useRef(new Animated.Value(0)).current;
@@ -89,28 +92,30 @@ export default function RedemptionCelebration() {
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 999,
-  },
-  card: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.positive,
-    borderRadius: radii.lg,
-    paddingVertical: spacing.xl,
-    paddingHorizontal: spacing.xl * 1.4,
-    alignItems: 'center',
-    ...shadows.raised,
-  },
-  emoji: { fontSize: 40, marginBottom: spacing.sm },
-  title: { fontFamily: fonts.displayMedium, fontSize: 20, color: colors.textPrimary, marginBottom: spacing.xs },
-  subtitle: { fontFamily: fonts.body, fontSize: 14, color: colors.textSecondary },
-});
+function makeStyles(colors: ColorPalette, shadows: ShadowPalette) {
+  return StyleSheet.create({
+    overlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 999,
+    },
+    card: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.positive,
+      borderRadius: radii.lg,
+      paddingVertical: spacing.xl,
+      paddingHorizontal: spacing.xl * 1.4,
+      alignItems: 'center',
+      ...shadows.raised,
+    },
+    emoji: { fontSize: 40, marginBottom: spacing.sm },
+    title: { fontFamily: fonts.displayMedium, fontSize: 20, color: colors.textPrimary, marginBottom: spacing.xs },
+    subtitle: { fontFamily: fonts.body, fontSize: 14, color: colors.textSecondary },
+  });
+}

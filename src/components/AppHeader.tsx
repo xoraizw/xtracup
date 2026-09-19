@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Logo from './Logo';
 import { Avatar } from './ui';
 import { useAuth } from '../hooks/useAuth';
-import { colors, fonts, shadows, spacing } from '../theme/theme';
+import { fonts, spacing, type ColorPalette, type ShadowPalette } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 
 const ROLE_SUBTITLE: Record<string, string> = {
   customer: '',
@@ -22,6 +23,8 @@ function firstName(fullName: string | null): string {
 // shell shares one consistent header instead of repeating it per screen.
 export default function AppHeader({ onProfilePress }: { onProfilePress?: () => void }) {
   const { profile } = useAuth();
+  const { colors, shadows } = useTheme();
+  const styles = useMemo(() => makeStyles(colors, shadows), [colors, shadows]);
   const subtitle = profile ? ROLE_SUBTITLE[profile.role] : '';
 
   return (
@@ -42,35 +45,37 @@ export default function AppHeader({ onProfilePress }: { onProfilePress?: () => v
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    backgroundColor: colors.surface,
-    ...shadows.card,
-    shadowOpacity: 0.05,
-    zIndex: 1,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-  },
-  textCol: {
-    flexShrink: 1,
-    flexGrow: 1,
-  },
-  greeting: {
-    fontFamily: fonts.displayMedium,
-    fontSize: 16,
-    color: colors.textPrimary,
-  },
-  subtitle: {
-    fontFamily: fonts.mono,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    fontSize: 10,
-    color: colors.textSecondary,
-    marginTop: 1,
-  },
-});
+function makeStyles(colors: ColorPalette, shadows: ShadowPalette) {
+  return StyleSheet.create({
+    safeArea: {
+      backgroundColor: colors.surface,
+      ...shadows.card,
+      shadowOpacity: 0.05,
+      zIndex: 1,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+    },
+    textCol: {
+      flexShrink: 1,
+      flexGrow: 1,
+    },
+    greeting: {
+      fontFamily: fonts.displayMedium,
+      fontSize: 16,
+      color: colors.textPrimary,
+    },
+    subtitle: {
+      fontFamily: fonts.mono,
+      textTransform: 'uppercase',
+      letterSpacing: 0.6,
+      fontSize: 10,
+      color: colors.textSecondary,
+      marginTop: 1,
+    },
+  });
+}

@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { BackLink, Body, Card, Input, Label, Screen, Title } from '../../components/ui';
-import { colors, spacing } from '../../theme/theme';
+import { spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 import type { Pass } from '../../types/database';
 
 type PassRow = Pass & {
@@ -21,6 +22,8 @@ export default function HistoryScreen({
   cafeFilter?: { id: string; name: string } | null;
 }) {
   const { profile, supabase } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [passes, setPasses] = useState<PassRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
@@ -88,8 +91,10 @@ export default function HistoryScreen({
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary },
-  gap: { height: spacing.md },
-  search: { marginBottom: spacing.lg },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary },
+    gap: { height: spacing.md },
+    search: { marginBottom: spacing.lg },
+  });
+}

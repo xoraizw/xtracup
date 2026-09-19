@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -13,8 +13,19 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, radii, shadows, spacing } from '../theme/theme';
+import { fonts, radii, spacing, type ColorPalette, type ShadowPalette } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 import { CloseIcon } from './ChromeIcons';
+
+// Every component below pulls its styles from the current theme (dark or
+// light, see ThemeContext) instead of a module-level StyleSheet — that's
+// what lets the customer-facing toggle actually repaint the UI instead of
+// styles staying frozen at whatever the theme was on first import.
+function useThemedStyles() {
+  const { colors, shadows } = useTheme();
+  const styles = useMemo(() => makeStyles(colors, shadows), [colors, shadows]);
+  return { styles, colors };
+}
 
 export function Screen({
   children,
@@ -36,6 +47,7 @@ export function Screen({
   // should leave this off rather than nesting scroll containers.
   scroll?: boolean;
 }) {
+  const { styles } = useThemedStyles();
   return (
     <SafeAreaView style={styles.screen} edges={includeTopInset ? ['top', 'bottom'] : ['bottom']}>
       {scroll ? (
@@ -56,22 +68,27 @@ export function Screen({
 }
 
 export function Card({ children, style }: { children: React.ReactNode; style?: object }) {
+  const { styles } = useThemedStyles();
   return <View style={[styles.card, style]}>{children}</View>;
 }
 
 export function Title({ children }: { children: React.ReactNode }) {
+  const { styles } = useThemedStyles();
   return <Text style={styles.title}>{children}</Text>;
 }
 
 export function Subtitle({ children, style }: { children: React.ReactNode; style?: object }) {
+  const { styles } = useThemedStyles();
   return <Text style={[styles.subtitle, style]}>{children}</Text>;
 }
 
 export function Label({ children }: { children: React.ReactNode }) {
+  const { styles } = useThemedStyles();
   return <Text style={styles.label}>{children}</Text>;
 }
 
 export function BackLink({ label = '← Back', onPress }: { label?: string; onPress: () => void }) {
+  const { styles } = useThemedStyles();
   return (
     <Pressable onPress={onPress} style={styles.backLink}>
       <Text style={styles.backLinkLabel}>{label}</Text>
@@ -90,6 +107,7 @@ export function IconButton({
   // photo (translucent dark scrim so it stays legible on any image).
   variant?: 'surface' | 'overlay';
 }) {
+  const { styles } = useThemedStyles();
   return (
     <Pressable
       onPress={onPress}
@@ -105,10 +123,12 @@ export function IconButton({
 }
 
 export function Body({ children, style }: { children: React.ReactNode; style?: object }) {
+  const { styles } = useThemedStyles();
   return <Text style={[styles.body, style]}>{children}</Text>;
 }
 
 export function StatTile({ value, caption }: { value: string; caption: string }) {
+  const { styles } = useThemedStyles();
   return (
     <View style={styles.statTile}>
       <Text style={styles.statValue}>{value}</Text>
@@ -117,24 +137,20 @@ export function StatTile({ value, caption }: { value: string; caption: string })
   );
 }
 
-const BADGE_VARIANTS = {
-  accent: { bg: colors.accentSoft, fg: colors.accent },
-  positive: { bg: colors.positiveSoft, fg: colors.positive },
-  negative: { bg: colors.negativeSoft, fg: colors.negative },
-  neutral: { bg: colors.surfaceRaised, fg: colors.textSecondary },
-  // A translucent dark scrim so the label stays legible sitting directly on
-  // top of any photo, regardless of the photo's own colors.
-  onPhoto: { bg: 'rgba(43, 30, 18, 0.55)', fg: colors.onPhoto },
-} as const;
+type BadgeVariant = 'accent' | 'positive' | 'negative' | 'neutral' | 'onPhoto';
 
-export function Badge({
-  label,
-  variant = 'neutral',
-}: {
-  label: string;
-  variant?: keyof typeof BADGE_VARIANTS;
-}) {
-  const tone = BADGE_VARIANTS[variant];
+export function Badge({ label, variant = 'neutral' }: { label: string; variant?: BadgeVariant }) {
+  const { styles, colors } = useThemedStyles();
+  const badgeVariants: Record<BadgeVariant, { bg: string; fg: string }> = {
+    accent: { bg: colors.accentSoft, fg: colors.accent },
+    positive: { bg: colors.positiveSoft, fg: colors.positive },
+    negative: { bg: colors.negativeSoft, fg: colors.negative },
+    neutral: { bg: colors.surfaceRaised, fg: colors.textSecondary },
+    // A translucent dark scrim so the label stays legible sitting directly
+    // on top of any photo, regardless of the photo's own colors.
+    onPhoto: { bg: 'rgba(43, 30, 18, 0.55)', fg: colors.onPhoto },
+  };
+  const tone = badgeVariants[variant];
   return (
     <View style={[styles.badge, { backgroundColor: tone.bg }]}>
       <Text style={[styles.badgeLabel, { color: tone.fg }]}>{label}</Text>
@@ -143,6 +159,7 @@ export function Badge({
 }
 
 export function Avatar({ name, size = 44 }: { name: string | null | undefined; size?: number }) {
+  const { styles } = useThemedStyles();
   const initials = (name ?? '?')
     .trim()
     .split(/\s+/)
@@ -157,6 +174,7 @@ export function Avatar({ name, size = 44 }: { name: string | null | undefined; s
 }
 
 export function ProgressBar({ progress }: { progress: number }) {
+  const { styles } = useThemedStyles();
   const pct = Math.max(0, Math.min(1, progress));
   return (
     <View style={styles.progressTrack}>
@@ -178,6 +196,7 @@ export function EmptyState({
   actionLabel?: string;
   onAction?: () => void;
 }) {
+  const { styles } = useThemedStyles();
   return (
     <View style={styles.emptyState}>
       {icon ? <View style={styles.emptyStateIcon}>{icon}</View> : null}
@@ -204,6 +223,7 @@ export function Sheet({
   onRequestClose: () => void;
   children: React.ReactNode;
 }) {
+  const { styles, colors } = useThemedStyles();
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onRequestClose}>
       <View style={styles.sheetBackdrop}>
@@ -241,6 +261,7 @@ export function Button({
   // footer) that shouldn't claim a full-size button's height/width.
   size?: 'default' | 'compact';
 }) {
+  const { styles, colors } = useThemedStyles();
   const isDisabled = disabled || loading;
   return (
     <Pressable
@@ -274,6 +295,7 @@ export function Button({
 }
 
 export function Input(props: TextInputProps) {
+  const { styles, colors } = useThemedStyles();
   return (
     <TextInput
       placeholderTextColor={colors.textSecondary}
@@ -283,247 +305,249 @@ export function Input(props: TextInputProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  screenInner: {
-    flexGrow: 1,
-    padding: spacing.lg,
-  },
-  // Used by the non-scroll branch, where children include their own
-  // scrollable content (a FlatList/ScrollView) that needs a height-bounded
-  // parent to compute its own scrollable viewport — `flexGrow` alone (as
-  // `screenInner` uses for the ScrollView contentContainerStyle case) isn't
-  // enough here and left the last item unreachable past the tab bar.
-  screenInnerFixed: {
-    flex: 1,
-    padding: spacing.lg,
-  },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: colors.hairline,
-    padding: spacing.lg,
-    ...shadows.card,
-  },
-  title: {
-    fontFamily: fonts.display,
-    fontSize: 26,
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-  },
-  subtitle: {
-    fontFamily: fonts.displayMedium,
-    fontSize: 18,
-    color: colors.textPrimary,
-  },
-  label: {
-    fontFamily: fonts.mono,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginBottom: spacing.xs,
-  },
-  backLink: {
-    marginBottom: spacing.md,
-  },
-  backLinkLabel: {
-    fontFamily: fonts.mono,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    fontSize: 12,
-    color: colors.accent,
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: radii.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconButtonSurface: {
-    backgroundColor: colors.surface,
-    ...shadows.card,
-  },
-  iconButtonOverlay: {
-    backgroundColor: 'rgba(43, 30, 18, 0.45)',
-  },
-  iconButtonPressed: {
-    opacity: 0.75,
-  },
-  body: {
-    fontFamily: fonts.body,
-    fontSize: 15,
-    color: colors.textPrimary,
-    lineHeight: 21,
-  },
-  statTile: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.hairline,
-    paddingVertical: spacing.lg,
-    paddingHorizontal: spacing.md,
-    alignItems: 'center',
-    ...shadows.card,
-  },
-  statValue: {
-    fontFamily: fonts.monoBold,
-    fontVariant: ['tabular-nums'],
-    fontSize: 34,
-    color: colors.accent,
-  },
-  statCaption: {
-    fontFamily: fonts.mono,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    fontSize: 11,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  badge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: radii.pill,
-  },
-  badgeLabel: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 12,
-  },
-  avatar: {
-    backgroundColor: colors.accentSoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarLabel: {
-    fontFamily: fonts.displayMedium,
-    color: colors.accent,
-  },
-  progressTrack: {
-    height: 8,
-    borderRadius: radii.pill,
-    backgroundColor: colors.surfaceRaised,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: radii.pill,
-    backgroundColor: colors.accent,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: spacing.xl,
-    paddingHorizontal: spacing.lg,
-  },
-  emptyStateIcon: {
-    marginBottom: spacing.md,
-  },
-  emptyStateTitle: {
-    fontFamily: fonts.displayMedium,
-    fontSize: 17,
-    color: colors.textPrimary,
-    textAlign: 'center',
-    marginBottom: spacing.xs,
-  },
-  emptyStateSubtitle: {
-    fontFamily: fonts.body,
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  emptyStateAction: {
-    marginTop: spacing.lg,
-    alignSelf: 'stretch',
-  },
-  sheetBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.55)',
-    justifyContent: 'flex-end',
-  },
-  sheetSafeArea: {
-    backgroundColor: colors.background,
-    borderTopLeftRadius: radii.xl,
-    borderTopRightRadius: radii.xl,
-    maxHeight: '90%',
-  },
-  sheet: {
-    backgroundColor: colors.background,
-    borderTopLeftRadius: radii.xl,
-    borderTopRightRadius: radii.xl,
-    padding: spacing.lg,
-    position: 'relative',
-  },
-  sheetHandleRow: { alignItems: 'center', marginBottom: spacing.md },
-  sheetCloseButton: {
-    position: 'absolute',
-    top: spacing.md,
-    right: spacing.md,
-    width: 32,
-    height: 32,
-    borderRadius: radii.pill,
-    backgroundColor: colors.surfaceRaised,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1,
-  },
-  sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: colors.hairlineStrong },
-  button: {
-    backgroundColor: colors.accent,
-    borderRadius: radii.pill,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonCompact: {
-    paddingVertical: 10,
-    paddingHorizontal: spacing.lg,
-  },
-  buttonSecondary: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.hairlineStrong,
-  },
-  buttonGhost: {
-    backgroundColor: 'transparent',
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  buttonPressed: {
-    opacity: 0.85,
-  },
-  buttonLabel: {
-    fontFamily: fonts.displayMedium,
-    fontSize: 16,
-    color: colors.onAccent,
-  },
-  buttonLabelCompact: {
-    fontSize: 14,
-  },
-  buttonLabelSecondary: {
-    color: colors.textPrimary,
-  },
-  buttonLabelGhost: {
-    color: colors.accent,
-  },
-  input: {
-    fontFamily: fonts.body,
-    fontSize: 16,
-    color: colors.textPrimary,
-    backgroundColor: colors.surfaceRaised,
-    borderRadius: radii.sm,
-    borderWidth: 1,
-    borderColor: colors.hairline,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 12,
-  },
-});
+function makeStyles(colors: ColorPalette, shadows: ShadowPalette) {
+  return StyleSheet.create({
+    flex: { flex: 1 },
+    screen: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    screenInner: {
+      flexGrow: 1,
+      padding: spacing.lg,
+    },
+    // Used by the non-scroll branch, where children include their own
+    // scrollable content (a FlatList/ScrollView) that needs a height-bounded
+    // parent to compute its own scrollable viewport — `flexGrow` alone (as
+    // `screenInner` uses for the ScrollView contentContainerStyle case) isn't
+    // enough here and left the last item unreachable past the tab bar.
+    screenInnerFixed: {
+      flex: 1,
+      padding: spacing.lg,
+    },
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      borderColor: colors.hairline,
+      padding: spacing.lg,
+      ...shadows.card,
+    },
+    title: {
+      fontFamily: fonts.display,
+      fontSize: 26,
+      color: colors.textPrimary,
+      marginBottom: spacing.sm,
+    },
+    subtitle: {
+      fontFamily: fonts.displayMedium,
+      fontSize: 18,
+      color: colors.textPrimary,
+    },
+    label: {
+      fontFamily: fonts.mono,
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+      fontSize: 12,
+      color: colors.textSecondary,
+      marginBottom: spacing.xs,
+    },
+    backLink: {
+      marginBottom: spacing.md,
+    },
+    backLinkLabel: {
+      fontFamily: fonts.mono,
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+      fontSize: 12,
+      color: colors.accent,
+    },
+    iconButton: {
+      width: 40,
+      height: 40,
+      borderRadius: radii.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    iconButtonSurface: {
+      backgroundColor: colors.surface,
+      ...shadows.card,
+    },
+    iconButtonOverlay: {
+      backgroundColor: 'rgba(43, 30, 18, 0.45)',
+    },
+    iconButtonPressed: {
+      opacity: 0.75,
+    },
+    body: {
+      fontFamily: fonts.body,
+      fontSize: 15,
+      color: colors.textPrimary,
+      lineHeight: 21,
+    },
+    statTile: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      borderColor: colors.hairline,
+      paddingVertical: spacing.lg,
+      paddingHorizontal: spacing.md,
+      alignItems: 'center',
+      ...shadows.card,
+    },
+    statValue: {
+      fontFamily: fonts.monoBold,
+      fontVariant: ['tabular-nums'],
+      fontSize: 34,
+      color: colors.accent,
+    },
+    statCaption: {
+      fontFamily: fonts.mono,
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+      fontSize: 11,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+    badge: {
+      alignSelf: 'flex-start',
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+      borderRadius: radii.pill,
+    },
+    badgeLabel: {
+      fontFamily: fonts.bodyMedium,
+      fontSize: 12,
+    },
+    avatar: {
+      backgroundColor: colors.accentSoft,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarLabel: {
+      fontFamily: fonts.displayMedium,
+      color: colors.accent,
+    },
+    progressTrack: {
+      height: 8,
+      borderRadius: radii.pill,
+      backgroundColor: colors.surfaceRaised,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      borderRadius: radii.pill,
+      backgroundColor: colors.accent,
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: spacing.xl,
+      paddingHorizontal: spacing.lg,
+    },
+    emptyStateIcon: {
+      marginBottom: spacing.md,
+    },
+    emptyStateTitle: {
+      fontFamily: fonts.displayMedium,
+      fontSize: 17,
+      color: colors.textPrimary,
+      textAlign: 'center',
+      marginBottom: spacing.xs,
+    },
+    emptyStateSubtitle: {
+      fontFamily: fonts.body,
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 20,
+    },
+    emptyStateAction: {
+      marginTop: spacing.lg,
+      alignSelf: 'stretch',
+    },
+    sheetBackdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.55)',
+      justifyContent: 'flex-end',
+    },
+    sheetSafeArea: {
+      backgroundColor: colors.background,
+      borderTopLeftRadius: radii.xl,
+      borderTopRightRadius: radii.xl,
+      maxHeight: '90%',
+    },
+    sheet: {
+      backgroundColor: colors.background,
+      borderTopLeftRadius: radii.xl,
+      borderTopRightRadius: radii.xl,
+      padding: spacing.lg,
+      position: 'relative',
+    },
+    sheetHandleRow: { alignItems: 'center', marginBottom: spacing.md },
+    sheetCloseButton: {
+      position: 'absolute',
+      top: spacing.md,
+      right: spacing.md,
+      width: 32,
+      height: 32,
+      borderRadius: radii.pill,
+      backgroundColor: colors.surfaceRaised,
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1,
+    },
+    sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: colors.hairlineStrong },
+    button: {
+      backgroundColor: colors.accent,
+      borderRadius: radii.pill,
+      paddingVertical: 14,
+      paddingHorizontal: spacing.xl,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    buttonCompact: {
+      paddingVertical: 10,
+      paddingHorizontal: spacing.lg,
+    },
+    buttonSecondary: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.hairlineStrong,
+    },
+    buttonGhost: {
+      backgroundColor: 'transparent',
+    },
+    buttonDisabled: {
+      opacity: 0.5,
+    },
+    buttonPressed: {
+      opacity: 0.85,
+    },
+    buttonLabel: {
+      fontFamily: fonts.displayMedium,
+      fontSize: 16,
+      color: colors.onAccent,
+    },
+    buttonLabelCompact: {
+      fontSize: 14,
+    },
+    buttonLabelSecondary: {
+      color: colors.textPrimary,
+    },
+    buttonLabelGhost: {
+      color: colors.accent,
+    },
+    input: {
+      fontFamily: fonts.body,
+      fontSize: 16,
+      color: colors.textPrimary,
+      backgroundColor: colors.surfaceRaised,
+      borderRadius: radii.sm,
+      borderWidth: 1,
+      borderColor: colors.hairline,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 12,
+    },
+  });
+}

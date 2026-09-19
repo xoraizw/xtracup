@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View, Pressable, Text } from 'react-native';
 import { Body, Card, Screen, Title } from '../../components/ui';
-import { colors, fonts, spacing } from '../../theme/theme';
+import { fonts, spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 
 type Section = 'tiers' | 'photos' | 'branches' | 'metrics' | 'history' | 'orders';
 
@@ -15,6 +16,8 @@ const SECTIONS: { key: Section; label: string; description: string }[] = [
 ];
 
 export default function StaffCafeHubScreen({ onSelect }: { onSelect: (section: Section) => void }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <Screen>
       <Title>Café</Title>
@@ -33,18 +36,20 @@ export default function StaffCafeHubScreen({ onSelect }: { onSelect: (section: S
   );
 }
 
-const styles = StyleSheet.create({
-  muted: { color: colors.textSecondary, marginBottom: spacing.lg },
-  list: { gap: spacing.md },
-  card: { marginBottom: 0 },
-  cardLabel: {
-    fontFamily: fonts.displayMedium,
-    fontSize: 17,
-    color: colors.textPrimary,
-    marginBottom: spacing.xs,
-  },
-  cardDescription: {
-    color: colors.textSecondary,
-    fontSize: 13,
-  },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    muted: { color: colors.textSecondary, marginBottom: spacing.lg },
+    list: { gap: spacing.md },
+    card: { marginBottom: 0 },
+    cardLabel: {
+      fontFamily: fonts.displayMedium,
+      fontSize: 17,
+      color: colors.textPrimary,
+      marginBottom: spacing.xs,
+    },
+    cardDescription: {
+      color: colors.textSecondary,
+      fontSize: 13,
+    },
+  });
+}

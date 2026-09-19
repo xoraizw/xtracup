@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import ScanScreen from '../screens/staff/ScanScreen';
 import PendingPaymentsScreen from '../screens/staff/PendingPaymentsScreen';
@@ -13,12 +13,15 @@ import HistoryScreen from '../screens/owner/HistoryScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import AppHeader from '../components/AppHeader';
 import TabBarButton from '../components/TabBarButton';
-import { colors, spacing } from '../theme/theme';
+import { spacing, type ColorPalette } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 
 type Tab = 'scan' | 'pending' | 'today' | 'cafe' | 'profile';
 type CafeSection = 'home' | 'tiers' | 'photos' | 'branches' | 'metrics' | 'history' | 'orders';
 
 export default function StaffTabs() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [tab, setTab] = useState<Tab>('scan');
   const [cafeSection, setCafeSection] = useState<CafeSection>('home');
 
@@ -61,14 +64,16 @@ export default function StaffTabs() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  content: { flex: 1 },
-  tabBar: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    borderTopColor: colors.hairline,
-    paddingBottom: spacing.lg,
-    paddingTop: spacing.sm,
-  },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    content: { flex: 1 },
+    tabBar: {
+      flexDirection: 'row',
+      borderTopWidth: 1,
+      borderTopColor: colors.hairline,
+      paddingBottom: spacing.lg,
+      paddingTop: spacing.sm,
+    },
+  });
+}

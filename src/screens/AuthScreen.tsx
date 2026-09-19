@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSignIn, useSignUp } from '@clerk/expo/legacy';
 import { Body, Button, Card, IconButton, Input, Label, Screen, Title } from '../components/ui';
 import { CloseIcon } from '../components/ChromeIcons';
 import Logo from '../components/Logo';
-import { colors, fonts, spacing } from '../theme/theme';
+import { fonts, spacing, type ColorPalette } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 
 type Mode = 'signUp' | 'signIn';
 type Stage = 'form' | 'code';
@@ -22,6 +23,8 @@ export default function AuthScreen({
 }) {
   const { signIn, setActive: setActiveSignIn, isLoaded: signInLoaded } = useSignIn();
   const { signUp, setActive: setActiveSignUp, isLoaded: signUpLoaded } = useSignUp();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
 
   const [mode, setMode] = useState<Mode>(initialMode);
   const [stage, setStage] = useState<Stage>('form');
@@ -180,36 +183,38 @@ export default function AuthScreen({
   );
 }
 
-const styles = StyleSheet.create({
-  cancelRow: {
-    alignItems: 'flex-start',
-    marginBottom: spacing.sm,
-  },
-  brandMark: {
-    marginTop: spacing.md,
-    marginBottom: spacing.md,
-  },
-  subtitle: {
-    color: colors.textSecondary,
-    marginBottom: spacing.xl,
-  },
-  card: {
-    marginTop: spacing.md,
-  },
-  spacer: {
-    height: spacing.md,
-  },
-  error: {
-    color: colors.negative,
-    marginTop: spacing.md,
-  },
-  switchRow: {
-    marginTop: spacing.lg,
-    alignItems: 'center',
-  },
-  switchLink: {
-    fontFamily: fonts.bodyMedium,
-    color: colors.accent,
-    fontSize: 14,
-  },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    cancelRow: {
+      alignItems: 'flex-start',
+      marginBottom: spacing.sm,
+    },
+    brandMark: {
+      marginTop: spacing.md,
+      marginBottom: spacing.md,
+    },
+    subtitle: {
+      color: colors.textSecondary,
+      marginBottom: spacing.xl,
+    },
+    card: {
+      marginTop: spacing.md,
+    },
+    spacer: {
+      height: spacing.md,
+    },
+    error: {
+      color: colors.negative,
+      marginTop: spacing.md,
+    },
+    switchRow: {
+      marginTop: spacing.lg,
+      alignItems: 'center',
+    },
+    switchLink: {
+      fontFamily: fonts.bodyMedium,
+      color: colors.accent,
+      fontSize: 14,
+    },
+  });
+}

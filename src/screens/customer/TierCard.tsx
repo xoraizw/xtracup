@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Badge, Body, Card, Label, Subtitle } from '../../components/ui';
-import { colors, fonts, spacing } from '../../theme/theme';
+import { fonts, spacing, type ColorPalette } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 import type { PassTier } from '../../types/database';
 
 // Shared tier-selection card — used both inline on CafeDetailScreen's
 // "Passes" section and inside PassTierModal's tier-list step, so the two
 // places a person picks a tier from look and behave identically.
 export default function TierCard({ tier, onPress }: { tier: PassTier; onPress: () => void }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const totalPayPerCup = tier.cup_price_pkr * tier.cups;
   const savings = totalPayPerCup - tier.price_pkr;
   return (
@@ -31,11 +34,13 @@ export default function TierCard({ tier, onPress }: { tier: PassTier; onPress: (
   );
 }
 
-const styles = StyleSheet.create({
-  card: { marginBottom: spacing.md },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
-  statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.xs },
-  statValue: { fontFamily: fonts.bodyMedium },
-  priceValue: { color: colors.accent, fontFamily: fonts.bodyMedium },
-  muted: { color: colors.textSecondary },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    card: { marginBottom: spacing.md },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
+    statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.xs },
+    statValue: { fontFamily: fonts.bodyMedium },
+    priceValue: { color: colors.accent, fontFamily: fonts.bodyMedium },
+    muted: { color: colors.textSecondary },
+  });
+}
